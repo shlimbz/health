@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>FitLog · 운동 루틴 트래커</title>
+<meta name="theme-color" content="#0b0d10" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== 인증 화면 ===== -->
+  <section id="authScreen" class="screen active">
+    <div class="auth-hero">
+      <div class="mark">FITLOG</div>
+      <h1 id="authTitle">다시 오셨네요</h1>
+      <p id="authSubtitle">오늘의 루틴을 이어가볼까요.</p>
+    </div>
+    <div class="auth-card">
+      <form id="authForm" data-mode="login">
+        <div class="field" id="nicknameField" style="display:none">
+          <label>닉네임</label>
+          <input type="text" id="nicknameInput" placeholder="예: 헬린이" />
+        </div>
+        <div class="field">
+          <label>이메일</label>
+          <input type="email" id="emailInput" required placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>비밀번호</label>
+          <input type="password" id="passwordInput" required minlength="6" placeholder="6자 이상" />
+        </div>
+        <div class="auth-error" id="authError"></div>
+        <button type="submit" class="btn-primary" id="authSubmitBtn">로그인</button>
+      </form>
+      <button type="button" class="btn-ghost" id="showSignupBtn">계정이 없으신가요? 회원가입</button>
+    </div>
+    <div class="auth-switch" id="authSwitchLogin" style="display:none">
+      이미 계정이 있으신가요? <button type="button" id="showLoginBtn">로그인</button>
+    </div>
+  </section>
+
+  <!-- ===== 메인 화면 ===== -->
+  <div id="mainScreen" class="screen">
+    <header class="topbar">
+      <div class="greeting">안녕하세요, <strong id="greetingName">회원</strong>님</div>
+      <button class="logout-btn" id="logoutBtn">로그아웃</button>
+    </header>
+
+    <main>
+      <!-- 대시보드 -->
+      <section id="view-dashboard" class="view active">
+
+        <div class="card bodymap-card">
+          <div class="bodymap-toggle">
+            <button id="bodyViewFront" class="active">앞면</button>
+            <button id="bodyViewBack">뒷면</button>
+          </div>
+          <div id="bodySvgWrap"></div>
+          <div class="bodymap-legend">
+            <span><span class="legend-dot" style="background:#FF6B4A"></span>최근 자극</span>
+            <span><span class="legend-dot" style="background:#4FD1C5"></span>회복 완료</span>
+          </div>
+        </div>
+
+        <div class="card reco-card">
+          <div class="card-title">내일 추천</div>
+          <span class="reco-badge train" id="recoBadge">운동 추천</span>
+          <div class="reco-msg" id="recoMsg"></div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box"><div class="val" id="statCalories">0</div><div class="label">오늘 소모 kcal</div></div>
+          <div class="stat-box"><div class="val" id="statSets">0</div><div class="label">오늘 세트</div></div>
+          <div class="stat-box"><div class="val" id="statWeekDays">0</div><div class="label">이번 주 운동일</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">오늘 한 운동</div>
+          <div id="todayLogList"></div>
+        </div>
+
+        <button class="btn-fab" id="openLogBtn">+ 오늘 운동 기록하기</button>
+
+        <div class="card ai-card">
+          <div class="card-title">AI 코치</div>
+          <div id="aiResult"><div class="ai-empty">최근 운동 기록을 바탕으로 AI 코치의 분석을 받아보세요.</div></div>
+          <button class="btn-outline" id="askAiBtn" style="margin-top:12px">AI 코치에게 물어보기</button>
+        </div>
+      </section>
+
+      <!-- 히스토리 -->
+      <section id="view-history" class="view">
+        <div class="card">
+          <div class="card-title">최근 5주</div>
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">기록</div>
+          <div id="historyList"></div>
+        </div>
+      </section>
+
+      <!-- 설정 -->
+      <section id="view-settings" class="view">
+        <div class="card">
+          <div class="card-title">프로필</div>
+          <form id="settingsForm">
+            <div class="field"><label>닉네임</label><input type="text" id="settingNickname" /></div>
+            <div class="field"><label>체중 (kg)</label><input type="number" id="settingWeight" /></div>
+            <div class="field"><label>키 (cm)</label><input type="number" id="settingHeight" /></div>
+            <button type="submit" class="btn-primary">저장하기</button>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-title">운동 알림</div>
+          <div class="reminder-row">
+            <span>매일 알림 받기</span>
+            <div class="switch" id="reminderSwitch"></div>
+          </div>
+          <div class="field" style="margin-top:14px">
+            <label>알림 시간</label>
+            <input type="time" id="reminderTime" />
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px">브라우저 탭이 열려 있을 때만 알림이 울려요.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="active" data-tab="dashboard"><span class="dot"></span>홈</button>
+      <button data-tab="history"><span class="dot"></span>기록</button>
+      <button data-tab="settings"><span class="dot"></span>설정</button>
+    </nav>
+  </div>
+
+  <!-- ===== 운동 기록 모달 ===== -->
+  <div class="modal" id="logModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3>운동 기록</h3>
+        <button class="modal-close" id="closeLogModal">×</button>
+      </div>
+      <form id="logForm">
+        <div class="field">
+          <label>날짜</label>
+          <input type="date" id="logDate" required />
+        </div>
+        <div class="field">
+          <label>운동 종목</label>
+          <select id="exerciseSelect"></select>
+        </div>
+        <div class="howto-box">
+          <strong id="exerciseMuscleTag"></strong>
+          <div id="exerciseHowto" style="margin-top:4px"></div>
+        </div>
+
+        <div class="field" style="margin-top:16px">
+          <label>세트 (무게 × 횟수)</label>
+          <div id="setRows"></div>
+          <button type="button" class="add-set-btn" id="addSetBtn">+ 세트 추가</button>
+        </div>
+
+        <div class="field">
+          <label>메모 (선택)</label>
+          <input type="text" id="logNote" placeholder="컨디션, 특이사항 등" />
+        </div>
+
+        <div class="calc-preview">
+          <span>예상 세트 <span class="val" id="calcPreviewSets">0</span>개</span>
+          <span>예상 소모 <span class="val" id="calcPreviewCal">0</span> kcal</span>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top:16px">기록 저장</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
