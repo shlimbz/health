@@ -26,12 +26,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyB0MHCg7d99btFqP50JoaMZMsIgmGDuLww",
+  authDomain: "health-9e732.firebaseapp.com",
+  projectId: "health-9e732",
+  storageBucket: "health-9e732.firebasestorage.app",
+  messagingSenderId: "783206050264",
+  appId: "1:783206050264:web:669a200066274763b4eaad"
 };
 
 export const app = initializeApp(firebaseConfig);
