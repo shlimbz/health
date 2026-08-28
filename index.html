@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <title>FitLog · 운동 루틴 트래커</title>
-<meta name="theme-color" content="#0b0d10" />
+<meta name="theme-color" content="#ffffff" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -41,6 +41,120 @@
     </div>
   </section>
 
+  <!-- ===== 온보딩 화면 ===== -->
+  <section id="onboardingScreen" class="screen">
+    <div class="ob-header">
+      <div class="ob-progress"><div class="ob-progress-bar" id="obProgressBar"></div></div>
+      <div class="ob-step-count" id="obStepCount">1/8</div>
+    </div>
+    <div class="ob-body">
+
+      <div class="ob-step active" data-step="1">
+        <h2>성별을 알려주세요</h2>
+        <p class="ob-desc">운동 추천과 칼로리 계산에 참고할게요.</p>
+        <div class="chip-group" data-field="gender">
+          <button type="button" class="chip" data-value="male">남성</button>
+          <button type="button" class="chip" data-value="female">여성</button>
+          <button type="button" class="chip" data-value="other">기타</button>
+        </div>
+      </div>
+
+      <div class="ob-step" data-step="2">
+        <h2>연령대가 어떻게 되세요?</h2>
+        <div class="chip-group" data-field="ageRange">
+          <button type="button" class="chip" data-value="10s">10대</button>
+          <button type="button" class="chip" data-value="20s">20대</button>
+          <button type="button" class="chip" data-value="30s">30대</button>
+          <button type="button" class="chip" data-value="40s">40대</button>
+          <button type="button" class="chip" data-value="50s">50대 이상</button>
+        </div>
+      </div>
+
+      <div class="ob-step" data-step="3">
+        <h2>체중과 키를 알려주세요</h2>
+        <p class="ob-desc">칼로리 계산과 참고용 BMI 계산에 쓰여요.</p>
+        <div class="field"><label>체중 (kg)</label><input type="number" id="obWeight" placeholder="예: 68" /></div>
+        <div class="field"><label>키 (cm)</label><input type="number" id="obHeight" placeholder="예: 172" /></div>
+        <div class="settings-hint" id="obBmiPreview"></div>
+      </div>
+
+      <div class="ob-step" data-step="4">
+        <h2>운동 목표가 뭔가요?</h2>
+        <div class="chip-group" data-field="goal">
+          <button type="button" class="chip" data-value="muscle">근육량 증가</button>
+          <button type="button" class="chip" data-value="diet">다이어트</button>
+          <button type="button" class="chip" data-value="stamina">체력/지구력</button>
+          <button type="button" class="chip" data-value="health">건강 관리</button>
+        </div>
+      </div>
+
+      <div class="ob-step" data-step="5">
+        <h2>운동 가능한 요일은?</h2>
+        <p class="ob-desc">여러 개 선택할 수 있어요.</p>
+        <div class="chip-group" data-field="availableDays" data-multi="true">
+          <button type="button" class="chip" data-value="mon">월</button>
+          <button type="button" class="chip" data-value="tue">화</button>
+          <button type="button" class="chip" data-value="wed">수</button>
+          <button type="button" class="chip" data-value="thu">목</button>
+          <button type="button" class="chip" data-value="fri">금</button>
+          <button type="button" class="chip" data-value="sat">토</button>
+          <button type="button" class="chip" data-value="sun">일</button>
+        </div>
+      </div>
+
+      <div class="ob-step" data-step="6">
+        <h2>주로 언제 운동하세요?</h2>
+        <div class="chip-group" data-field="preferredTime">
+          <button type="button" class="chip" data-value="morning">아침</button>
+          <button type="button" class="chip" data-value="daytime">오전/오후</button>
+          <button type="button" class="chip" data-value="evening">저녁</button>
+          <button type="button" class="chip" data-value="night">밤</button>
+        </div>
+      </div>
+
+      <div class="ob-step" data-step="7">
+        <h2>어디서 운동하세요?</h2>
+        <div class="chip-group" data-field="equipment">
+          <button type="button" class="chip" data-value="gym">헬스장</button>
+          <button type="button" class="chip" data-value="bodyweight">맨몸/홈트</button>
+          <button type="button" class="chip" data-value="both">둘 다</button>
+        </div>
+      </div>
+
+      <div class="ob-step" data-step="8">
+        <h2>더 신경쓰고 싶은 부위가 있나요?</h2>
+        <p class="ob-desc">선택 사항이에요. 건너뛰어도 괜찮아요.</p>
+        <div class="field">
+          <label>키우고 싶은 부위</label>
+          <div class="chip-group" data-field="targetMuscles" data-multi="true">
+            <button type="button" class="chip" data-value="chest">가슴</button>
+            <button type="button" class="chip" data-value="back">등</button>
+            <button type="button" class="chip" data-value="shoulders">어깨</button>
+            <button type="button" class="chip" data-value="arms">팔</button>
+            <button type="button" class="chip" data-value="abs">복근</button>
+            <button type="button" class="chip" data-value="legs">하체</button>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label>피하고 싶은 부위 (부상 등)</label>
+          <div class="chip-group" data-field="avoidMuscles" data-multi="true">
+            <button type="button" class="chip" data-value="chest">가슴</button>
+            <button type="button" class="chip" data-value="back">등</button>
+            <button type="button" class="chip" data-value="shoulders">어깨</button>
+            <button type="button" class="chip" data-value="arms">팔</button>
+            <button type="button" class="chip" data-value="abs">복근</button>
+            <button type="button" class="chip" data-value="legs">하체</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="ob-footer">
+      <button type="button" class="btn-outline" id="obBackBtn" style="visibility:hidden">이전</button>
+      <button type="button" class="btn-primary" id="obNextBtn">다음</button>
+    </div>
+  </section>
+
   <!-- ===== 메인 화면 ===== -->
   <div id="mainScreen" class="screen">
     <header class="topbar">
@@ -49,40 +163,66 @@
     </header>
 
     <main>
-      <!-- 대시보드 -->
+      <!-- 홈 (스크롤 없이 한 화면) -->
       <section id="view-dashboard" class="view active">
-
-        <div class="card bodymap-card">
-          <div class="bodymap-toggle">
-            <button id="bodyViewFront" class="active">앞면</button>
-            <button id="bodyViewBack">뒷면</button>
+        <div class="home-top">
+          <div class="reco-banner" id="recoBanner">
+            <div class="reco-eyebrow" id="recoEyebrow">오늘의 추천</div>
+            <div class="reco-msg" id="recoMsg"></div>
+            <button class="reco-cta" id="recoCtaBtn">운동 시작하기</button>
           </div>
-          <div id="bodySvgWrap"></div>
-          <div class="bodymap-legend">
-            <span><span class="legend-dot" style="background:#FF6B4A"></span>최근 자극</span>
-            <span><span class="legend-dot" style="background:#4FD1C5"></span>회복 완료</span>
+
+          <div class="stats-grid">
+            <div class="stat-box"><div class="val" id="statCalories">0</div><div class="label">오늘 소모 kcal</div></div>
+            <div class="stat-box"><div class="val" id="statSets">0</div><div class="label">오늘 세트</div></div>
+            <div class="stat-box"><div class="val" id="statWeekDays">0</div><div class="label">이번 주 운동일</div></div>
+            <div class="stat-box"><div class="val" id="statStreak">0</div><div class="label">연속 운동일</div></div>
+          </div>
+
+          <div class="card bodymap-mini">
+            <div id="bodySvgWrap"></div>
+            <div class="bm-info">
+              <div class="card-title">부위별 회복 상태</div>
+              <div class="bm-legend">
+                <span><span class="legend-dot" style="background:#FF6B4A"></span>자극</span>
+                <span><span class="legend-dot" style="background:#2FAE9E"></span>회복</span>
+              </div>
+              <div class="bm-toggle">
+                <button type="button" id="bodyViewFront" class="active">앞면</button>
+                <button type="button" id="bodyViewBack">뒷면</button>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="card reco-card">
-          <div class="card-title">내일 추천</div>
-          <span class="reco-badge train" id="recoBadge">운동 추천</span>
-          <div class="reco-msg" id="recoMsg"></div>
+      <!-- 운동 (퀘스트) -->
+      <section id="view-workout" class="view">
+        <div class="quest-header">
+          <div>
+            <div class="qh-title">오늘의 운동</div>
+            <div class="qh-sub" id="questDateLabel"></div>
+          </div>
+          <div class="quest-progress-ring" id="questProgress" style="display:none">0/0</div>
         </div>
+        <div id="questBody"></div>
+      </section>
 
-        <div class="stats-row">
-          <div class="stat-box"><div class="val" id="statCalories">0</div><div class="label">오늘 소모 kcal</div></div>
-          <div class="stat-box"><div class="val" id="statSets">0</div><div class="label">오늘 세트</div></div>
-          <div class="stat-box"><div class="val" id="statWeekDays">0</div><div class="label">이번 주 운동일</div></div>
-        </div>
-
+      <!-- 기록 (캘린더) -->
+      <section id="view-history" class="view">
         <div class="card">
-          <div class="card-title">오늘 한 운동</div>
-          <div id="todayLogList"></div>
+          <div class="cal-nav">
+            <button type="button" id="calPrevBtn">‹</button>
+            <div class="cal-title" id="calTitle"></div>
+            <button type="button" id="calNextBtn">›</button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
         </div>
-
-        <button class="btn-fab" id="openLogBtn">+ 오늘 운동 기록하기</button>
-
+        <button type="button" class="btn-outline" id="openLogBtn">+ 직접 기록 추가</button>
+        <div class="card">
+          <div class="history-day-title" id="historyDayTitle"></div>
+          <div id="historyDayList"></div>
+        </div>
         <div class="card ai-card">
           <div class="card-title">AI 코치</div>
           <div id="aiResult"><div class="ai-empty">최근 운동 기록을 바탕으로 AI 코치의 분석을 받아보세요.</div></div>
@@ -90,22 +230,25 @@
         </div>
       </section>
 
-      <!-- 히스토리 -->
-      <section id="view-history" class="view">
-        <div class="card">
-          <div class="card-title">최근 5주</div>
-          <div class="heatmap-grid" id="heatmapGrid"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">기록</div>
-          <div id="historyList"></div>
-        </div>
-      </section>
-
       <!-- 설정 -->
       <section id="view-settings" class="view">
         <div class="card">
-          <div class="card-title">프로필</div>
+          <div class="theme-row">
+            <span>다크 모드</span>
+            <div class="switch" id="themeSwitch"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">내 프로필</div>
+          <div class="profile-summary-row"><span class="k">목표</span><span id="pfGoal">-</span></div>
+          <div class="profile-summary-row"><span class="k">체중 / 키</span><span id="pfBody">-</span></div>
+          <div class="profile-summary-row"><span class="k">BMI (참고용)</span><span id="pfBmi">-</span></div>
+          <div class="profile-summary-row"><span class="k">운동 환경</span><span id="pfEquip">-</span></div>
+          <div class="profile-summary-row"><span class="k">운동 가능 요일</span><span id="pfDays">-</span></div>
+          <button class="btn-outline" id="editProfileBtn" style="margin-top:12px">프로필 다시 설정하기</button>
+        </div>
+        <div class="card">
+          <div class="card-title">기본 정보 수정</div>
           <form id="settingsForm">
             <div class="field"><label>닉네임</label><input type="text" id="settingNickname" /></div>
             <div class="field"><label>체중 (kg)</label><input type="number" id="settingWeight" /></div>
@@ -113,29 +256,18 @@
             <button type="submit" class="btn-primary">저장하기</button>
           </form>
         </div>
-        <div class="card">
-          <div class="card-title">운동 알림</div>
-          <div class="reminder-row">
-            <span>매일 알림 받기</span>
-            <div class="switch" id="reminderSwitch"></div>
-          </div>
-          <div class="field" style="margin-top:14px">
-            <label>알림 시간</label>
-            <input type="time" id="reminderTime" />
-          </div>
-          <p style="font-size:12px;color:var(--text-muted);margin-top:8px">브라우저 탭이 열려 있을 때만 알림이 울려요.</p>
-        </div>
       </section>
     </main>
 
     <nav class="tabbar">
-      <button class="active" data-tab="dashboard"><span class="dot"></span>홈</button>
-      <button data-tab="history"><span class="dot"></span>기록</button>
-      <button data-tab="settings"><span class="dot"></span>설정</button>
+      <button type="button" class="active" data-tab="dashboard"><span class="tabicon">⌂</span>홈</button>
+      <button type="button" data-tab="workout"><span class="tabicon">▸</span>운동</button>
+      <button type="button" data-tab="history"><span class="tabicon">▦</span>기록</button>
+      <button type="button" data-tab="settings"><span class="tabicon">⚙</span>설정</button>
     </nav>
   </div>
 
-  <!-- ===== 운동 기록 모달 ===== -->
+  <!-- ===== 운동 기록(수동) 모달 ===== -->
   <div class="modal" id="logModal">
     <div class="modal-sheet">
       <div class="modal-header">
@@ -156,10 +288,18 @@
           <div id="exerciseHowto" style="margin-top:4px"></div>
         </div>
 
-        <div class="field" style="margin-top:16px">
+        <div class="field" id="strengthFields" style="margin-top:16px">
           <label>세트 (무게 × 횟수)</label>
           <div id="setRows"></div>
           <button type="button" class="add-set-btn" id="addSetBtn">+ 세트 추가</button>
+        </div>
+
+        <div class="field" id="cardioFields" style="display:none;margin-top:16px">
+          <label>운동 시간 / 평균 속도</label>
+          <div class="cardio-fields">
+            <input type="number" id="cardioDuration" placeholder="시간(분)" />
+            <input type="number" id="cardioSpeed" placeholder="속도(km/h, 선택)" />
+          </div>
         </div>
 
         <div class="field">
@@ -168,12 +308,23 @@
         </div>
 
         <div class="calc-preview">
-          <span>예상 세트 <span class="val" id="calcPreviewSets">0</span>개</span>
-          <span>예상 소모 <span class="val" id="calcPreviewCal">0</span> kcal</span>
+          <span>예상 소모</span>
+          <span><span class="val" id="calcPreviewCal">0</span> kcal</span>
         </div>
 
         <button type="submit" class="btn-primary" style="margin-top:16px">기록 저장</button>
       </form>
+    </div>
+  </div>
+
+  <div class="rest-timer-bar" id="restTimerBar">
+    <div>
+      <div class="rt-label">휴식 중</div>
+      <div class="rt-time" id="restTimeLabel">01:30</div>
+    </div>
+    <div class="rt-actions">
+      <button type="button" id="restAddBtn">+15초</button>
+      <button type="button" id="restSkipBtn">건너뛰기</button>
     </div>
   </div>
 
