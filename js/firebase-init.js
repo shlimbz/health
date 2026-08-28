@@ -32,7 +32,7 @@ const firebaseConfig = {
     storageBucket: "health-9e732.firebasestorage.app",
     messagingSenderId: "783206050264",
     appId: "1:783206050264:web:669a200066274763b4eaad"
-  };
+};
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
