@@ -343,6 +343,15 @@ body {
   background: linear-gradient(135deg, #fff6f8, #fdf5ff);
 }
 
+.answer-btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.answer-btn:disabled.is-selected {
+  opacity: 1;
+}
+
 /* 질문 전환 애니메이션 */
 .quiz-body {
   animation: question-in 0.32s ease;

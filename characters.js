@@ -242,7 +242,7 @@ const CHARACTER_SETS = {
       emoji: "🧞",
       image: "genie.webp",
       family: "디즈니 클래식",
-      personality: { energy: 2, action: 1.5, emotion: 1, lifestyle: 2 },
+      personality: { energy: 2, action: 1.5, emotion: 1, lifestyle: 1.5 },
       tagline: "즉흥적인 유쾌함으로 분위기를 살리는 인싸",
       description:
         "어떤 자리든 유쾌하게 만드는 타입이에요. 순발력이 좋아서 상황에 맞춰 즉흥적으로 재치를 발휘하고, 사람들과 어울리는 걸 진심으로 즐겨요.",
@@ -255,7 +255,7 @@ const CHARACTER_SETS = {
       emoji: "🐯",
       image: "tigger.webp",
       family: "디즈니 클래식",
-      personality: { energy: 2, action: 2, emotion: 1, lifestyle: 2 },
+      personality: { energy: 2, action: 2, emotion: 1, lifestyle: 1.5 },
       tagline: "가만히 있질 못하는 에너지 폭발형",
       description:
         "튀어 오르는 것처럼 에너지가 넘치는 타입이에요. 가만히 있는 것보다 몸을 움직이는 게 편하고, 어디서든 유쾌한 분위기를 만들어내요.",
@@ -268,7 +268,7 @@ const CHARACTER_SETS = {
       emoji: "👽",
       image: "stitch.webp",
       family: "디즈니 클래식",
-      personality: { energy: 1, action: 2, emotion: 1.5, lifestyle: 2 },
+      personality: { energy: 1, action: 2, emotion: 1.5, lifestyle: 1.5 },
       tagline: "장난꾸러기 같지만 정이 많은 자유분방형",
       description:
         "처음엔 제멋대로처럼 보여도 마음속엔 깊은 애정이 있는 타입이에요. 예측하기 어려운 자유분방함 속에서도 소중한 사람에겐 진심을 다해요.",
@@ -337,7 +337,7 @@ const CHARACTER_SETS = {
       emoji: "😄",
       image: "joy.webp",
       family: "인사이드아웃",
-      personality: { energy: 2, action: 1.5, emotion: 2, lifestyle: 1.5 },
+      personality: { energy: 1.5, action: 1.5, emotion: 2, lifestyle: 1.5 },
       tagline: "언제나 밝은 면을 먼저 보는 긍정 에너자이저",
       description:
         "감정을 숨기지 않고 있는 그대로 밝게 표현하는 타입이에요. 어떤 상황에서도 좋은 점을 먼저 찾아내고, 그 에너지로 주변까지 밝게 만들어요.",
@@ -363,7 +363,7 @@ const CHARACTER_SETS = {
       emoji: "😨",
       image: "fear.webp",
       family: "인사이드아웃",
-      personality: { energy: -1.5, action: -2, emotion: 1, lifestyle: -2 },
+      personality: { energy: -1.5, action: -2, emotion: 1, lifestyle: -1.5 },
       tagline: "만약을 대비하는 신중하고 걱정 많은 타입",
       description:
         "혹시 모를 상황을 미리 걱정하고 대비하는 타입이에요. 무리한 도전보다 안전한 선택을 우선하고, 신중하게 확인한 뒤에야 움직여요.",
@@ -376,7 +376,7 @@ const CHARACTER_SETS = {
       emoji: "😢",
       image: "sadness.webp",
       family: "인사이드아웃",
-      personality: { energy: -1.5, action: -2, emotion: 2, lifestyle: -1 },
+      personality: { energy: -1.5, action: -1.5, emotion: 2, lifestyle: -1 },
       tagline: "느리지만 깊이 공감하는 조용한 위로자",
       description:
         "서두르지 않고 천천히, 마음 깊이 느끼는 타입이에요. 슬픔이나 힘든 감정을 피하지 않고 있는 그대로 받아들이는 편이라, 오히려 누군가의 아픔을 가장 잘 이해해주는 존재가 돼요.",
@@ -482,7 +482,7 @@ const CHARACTER_SETS = {
       emoji: "🦜",
       image: "jafar.webp",
       family: "디즈니 빌런",
-      personality: { energy: -1, action: -1.5, emotion: -2, lifestyle: -2 },
+      personality: { energy: -1, action: -1.5, emotion: -2, lifestyle: -1.5 },
       tagline: "빈틈없이 계획하는 냉철한 통제형",
       description:
         "감정에 흔들리지 않고 치밀하게 계획을 세우는 타입이에요. 목표를 이루기 위해 상황을 통제하려 하고, 신중하고 계산적으로 움직여요.",

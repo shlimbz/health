@@ -145,6 +145,7 @@
   }
 
   function startTest() {
+    isTransitioning = false;
     clearState();
     showScreen("quiz");
     renderQuestion();
@@ -202,9 +203,19 @@
     applyEmojiSupport(el.answersList);
   }
 
+  // 문항 전환 도중(160ms) 추가 클릭이 들어와도 무시하기 위한 잠금 플래그.
+  // 이게 없으면 마지막 문항에서 더블클릭/더블탭 시 finishTest()가 두 번 실행되어,
+  // 매칭에 포함된 랜덤 요소 때문에 결과 캐릭터가 한 번 바뀌어 보이는 문제가 있었다.
+  let isTransitioning = false;
+
   function selectAnswer(answerIdx, btnEl) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
     // 짧은 선택 피드백 애니메이션
     btnEl.classList.add("is-selected");
+    // 전환이 끝날 때까지 같은 문항의 다른 버튼도 눌리지 않도록 잠근다.
+    Array.from(el.answersList.children).forEach((b) => { b.disabled = true; });
 
     state.answerIndices[state.currentIndex] = answerIdx;
     saveState();
@@ -214,17 +225,20 @@
         state.currentIndex += 1;
         saveState();
         renderQuestion();
+        isTransitioning = false;
         // 문항마다 히스토리를 쌓지 않는다 — 브라우저 뒤로가기는 "퀴즈 화면 진입 전"으로
         // 돌아가는 화면 단위 동작으로 통일하고, 문항 간 이동은 화면 안의 '‹' 버튼이 담당한다.
         // (이렇게 하지 않으면 뒤로가기를 눌러도 실제로는 같은 문항이 다시 그려지기만 하고
         // 이전 문항으로 돌아가지 않는 혼란스러운 동작이 생긴다.)
       } else {
         finishTest();
+        isTransitioning = false;
       }
     }, 160);
   }
 
   function goToPrevQuestion() {
+    if (isTransitioning) return;
     if (state.currentIndex === 0) return;
     state.currentIndex -= 1;
     saveState();
@@ -442,6 +456,7 @@
   // 계속 쓰이지만(findClosestCharacter 참고), 화면에 별도 텍스트로 보여주지는 않는다.
 
   function restartTest() {
+    isTransitioning = false;
     clearState();
     showScreen("main");
     pushHistoryState("main");
