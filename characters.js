@@ -58,7 +58,7 @@ const CHARACTER_SETS = {
       emoji: "🐱",
       image: "hachiware.webp",
       family: "치이카와 세계관",
-      personality: { energy: 1.5, action: 0.5, emotion: 1, lifestyle: 0.5 },
+      personality: { energy: 1.5, action: 1, emotion: 1, lifestyle: 1 },
       tagline: "밝은 에너지로 친구를 챙기는 든든한 무드메이커",
       description:
         "똑똑하고 눈치가 빨라서 분위기를 잘 살피고, 주변 친구들을 자연스럽게 챙기는 타입이에요. 긍정적인 태도로 힘든 상황도 가볍게 풀어내는 힘이 있어요.",
@@ -123,7 +123,7 @@ const CHARACTER_SETS = {
       emoji: "🦁",
       image: "shisa.webp",
       family: "치이카와 세계관",
-      personality: { energy: -0.5, action: 0.5, emotion: -0.5, lifestyle: -1.5 },
+      personality: { energy: -1, action: 1, emotion: -1, lifestyle: -1.5 },
       tagline: "묵묵히 자기 몫을 해내는 성실한 노력형",
       description:
         "티 내지 않고 꾸준히 자기 할 일을 해내는 타입이에요. 감정보다 책임감을 우선시하고, 정해진 루틴 안에서 안정적으로 실력을 쌓아가요.",
@@ -136,7 +136,7 @@ const CHARACTER_SETS = {
       emoji: "🦀",
       image: "kanichan.webp",
       family: "치이카와 세계관",
-      personality: { energy: -0.5, action: -1, emotion: 1.5, lifestyle: -0.5 },
+      personality: { energy: -1.5, action: -1.5, emotion: 1.5, lifestyle: -1 },
       tagline: "다정하게 곁을 살피는 차분한 배려꾼",
       description:
         "나서서 주목받기보다 조용히 주변을 살피고 챙기는 타입이에요. 다른 사람의 감정 변화를 잘 알아차리고 부드럽게 다가가요.",
@@ -296,7 +296,7 @@ const CHARACTER_SETS = {
       emoji: "🧸",
       image: "sulley.webp",
       family: "픽사 친구들",
-      personality: { energy: 1, action: 0, emotion: 1.5, lifestyle: -1 },
+      personality: { energy: 1.5, action: -0.5, emotion: 1.5, lifestyle: -1.5 },
       tagline: "덩치는 크지만 마음은 여린 든든한 보호자",
       description:
         "겉모습과 달리 다정하고 세심한 타입이에요. 곁에 있는 존재를 살뜰히 챙기고, 안정적인 태도로 신뢰를 주는 든든함이 있어요.",
@@ -322,7 +322,7 @@ const CHARACTER_SETS = {
       emoji: "🐭",
       image: "remy.webp",
       family: "픽사 친구들",
-      personality: { energy: -0.5, action: 1, emotion: 0.5, lifestyle: 1 },
+      personality: { energy: -1.5, action: 1, emotion: 0.5, lifestyle: 1.5 },
       tagline: "자기만의 감각을 믿는 창의적인 탐구가",
       description:
         "남들과 다른 자기만의 감각과 취향을 소중히 여기는 타입이에요. 호기심이 생기면 직접 시도해보며 배우고, 자기 방식대로 밀고 나가요.",
@@ -495,7 +495,7 @@ const CHARACTER_SETS = {
       emoji: "🪝",
       image: "captain-hook.webp",
       family: "디즈니 빌런",
-      personality: { energy: 0, action: 0.5, emotion: 1, lifestyle: -0.5 },
+      personality: { energy: -1, action: 1, emotion: 1.5, lifestyle: -1.5 },
       tagline: "체면을 중시하는 예민하고 감정적인 타입",
       description:
         "자존심과 체면을 무엇보다 중요하게 여기는 타입이에요. 예민한 편이라 사소한 일에도 감정이 크게 흔들리고, 티가 나게 반응해요.",
@@ -510,7 +510,7 @@ const CHARACTER_SETS = {
       emoji: "🤠",
       image: "woody.webp",
       family: "토이 스토리",
-      personality: { energy: 1, action: 0.5, emotion: 1, lifestyle: -1 },
+      personality: { energy: 1.5, action: 0, emotion: 1.5, lifestyle: -1.5 },
       tagline: "친구를 먼저 챙기는 책임감 있는 리더",
       description:
         "무리 안에서 자연스럽게 리더 역할을 맡는 타입이에요. 자기 이익보다 친구들의 안전과 화합을 먼저 생각하고, 끝까지 책임지려 해요.",
@@ -536,7 +536,7 @@ const CHARACTER_SETS = {
       emoji: "🐷",
       image: "hamm.webp",
       family: "토이 스토리",
-      personality: { energy: 0, action: -1, emotion: -1.5, lifestyle: -0.5 },
+      personality: { energy: -1, action: -1.5, emotion: -1.5, lifestyle: -1.5 },
       tagline: "한 발 물러서서 지켜보는 현실적인 관찰자",
       description:
         "상황에 바로 뛰어들기보다 한 발 물러서서 지켜보는 타입이에요. 냉소적인 유머 속에 현실적인 판단력이 숨어 있어요.",
@@ -601,7 +601,7 @@ const CHARACTER_SETS = {
       emoji: "🐑",
       image: "bo-peep.webp",
       family: "토이 스토리",
-      personality: { energy: -0.5, action: 0, emotion: 0, lifestyle: 1 },
+      personality: { energy: -1.5, action: 0.5, emotion: -0.5, lifestyle: 1.5 },
       tagline: "자기 길을 스스로 정하는 독립적인 타입",
       description:
         "남에게 기대기보다 스스로 판단하고 움직이는 타입이에요. 차분하지만 필요할 땐 과감하게 자기 길을 선택하는 독립심이 있어요.",
@@ -614,7 +614,7 @@ const CHARACTER_SETS = {
       emoji: "🐶",
       image: "slinky.webp",
       family: "토이 스토리",
-      personality: { energy: 0, action: -0.5, emotion: 1.5, lifestyle: -1 },
+      personality: { energy: -1, action: -1, emotion: 1.5, lifestyle: -1.5 },
       tagline: "묵묵히 곁을 지키는 든든한 의리파",
       description:
         "나서지 않아도 늘 곁에서 조용히 지지해주는 타입이에요. 의리와 배려심이 깊어서, 힘든 순간에도 변함없이 함께해줘요.",
@@ -656,3 +656,38 @@ const MATCHING_WEIGHTS = {
  * 값을 줄이면 더 정확하게 "가장 가까운 1명"에 가깝게, 늘리면 더 다양한 결과가 나온다.
  */
 const MATCH_POOL_TOLERANCE = 0.9;
+
+/**
+ * 세계관(family)을 더 큰 "유니버스" 3개로 묶는 매핑.
+ *
+ * 결과 화면에서 "치이카와 세계관에서 1명 / 디즈니 세계관에서 1명 /
+ * 픽사 세계관에서 1명" 이렇게 총 3명을 보여주기 위한 분류다.
+ * family를 새로 추가할 때는 여기에도 어느 유니버스에 속하는지 꼭 추가해줘야 한다.
+ */
+const UNIVERSE_BY_FAMILY = {
+  "치이카와 세계관": "치이카와 세계관",
+  "디즈니 클래식": "디즈니 세계관",
+  "디즈니 빌런": "디즈니 세계관",
+  "픽사 친구들": "픽사 세계관",
+  "인사이드아웃": "픽사 세계관",
+  "토이 스토리": "픽사 세계관"
+};
+
+// 결과 화면에 유니버스를 보여줄 순서
+const UNIVERSE_ORDER = ["치이카와 세계관", "디즈니 세계관", "픽사 세계관"];
+
+function getCharacterUniverse(character) {
+  return UNIVERSE_BY_FAMILY[character.family] || character.family;
+}
+
+// 유니버스별로 캐릭터를 미리 묶어둔 맵 { "치이카와 세계관": [...], "디즈니 세계관": [...], "픽사 세계관": [...] }
+function groupCharactersByUniverse(characterList) {
+  const groups = {};
+  UNIVERSE_ORDER.forEach((u) => { groups[u] = []; });
+  characterList.forEach((character) => {
+    const universe = getCharacterUniverse(character);
+    if (!groups[universe]) groups[universe] = [];
+    groups[universe].push(character);
+  });
+  return groups;
+}

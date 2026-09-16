@@ -44,15 +44,8 @@
     questionText: document.getElementById("question-text"),
     answersList: document.getElementById("answers-list"),
 
-    resultEmoji: document.getElementById("result-emoji"),
-    resultPhoto: document.getElementById("result-photo"),
-    resultName: document.getElementById("result-name"),
-    resultMatch: document.getElementById("result-match"),
-    resultTagline: document.getElementById("result-tagline"),
     traitBars: document.getElementById("trait-bars"),
-    resultDescription: document.getElementById("result-description"),
-    resultTraits: document.getElementById("result-traits"),
-    resultReasons: document.getElementById("result-reasons"),
+    resultGroups: document.getElementById("result-groups"),
     shareBtn: document.getElementById("share-btn"),
     restartBtn: document.getElementById("restart-btn"),
     shareToast: document.getElementById("share-toast")
@@ -87,7 +80,7 @@
     testId: ACTIVE_TEST_ID,
     currentIndex: 0,
     answerIndices: [], // 각 질문에서 선택한 답변의 index (뒤로가기 지원)
-    finishedCharacterId: null
+    finishedResults: null // [{ universe, characterId, similarity }, ...] (치이카와/디즈니/픽사 3개)
   };
 
   function saveState() {
@@ -113,7 +106,7 @@
   }
 
   function clearState() {
-    state = { testId: ACTIVE_TEST_ID, currentIndex: 0, answerIndices: [], finishedCharacterId: null };
+    state = { testId: ACTIVE_TEST_ID, currentIndex: 0, answerIndices: [], finishedResults: null };
     try {
       sessionStorage.removeItem(STORAGE_KEY);
     } catch (err) {
@@ -275,17 +268,18 @@
     return normalized;
   }
 
-  // 요구사항 9: 4개 축의 차이를 계산해 가장 가까운 캐릭터를 찾는다.
+  // 요구사항 9: 4개 축의 차이를 계산해 후보군(candidates) 중 가장 가까운 캐릭터를 찾는다.
   // 가중치(MATCHING_WEIGHTS)는 characters.js에서 손쉽게 조정할 수 있다.
   //
   // 캐릭터가 많아지면서(현재 45종) 성향이 비슷한 캐릭터들이 여러 개 생긴다.
   // "가장 가까운 1명"만 고정으로 뽑으면 비슷한 유형을 여러 개 넣어둔 의미가
   // 없어지므로, 최소 거리 기준 MATCH_POOL_TOLERANCE 이내의 캐릭터들을
-  // "후보 풀"로 묶고 그 안에서 거리에 반비례하는 가중 랜덤으로 최종 결과를
-  // 고른다. (화면에는 최종 선택된 1명만 보여주고, 후보 풀 자체는 화면에 노출하지 않는다.
-  // similarCharacters는 이후 다른 기능에서 활용할 수 있도록 함께 반환만 해둔다.)
-  function findClosestCharacter(userVector) {
-    const scored = characterSet.map((character) => {
+  // "후보 풀"로 묶고 그 안에서 거리에 반비례하는 가중 랜덤으로 최종 결과를 고른다.
+  //
+  // candidates 인자를 받도록 만들어서, 전체 캐릭터뿐 아니라 특정 유니버스
+  // (치이카와/디즈니/픽사)로 좁힌 부분집합에 대해서도 그대로 재사용할 수 있다.
+  function findClosestCharacter(userVector, candidates) {
+    const scored = candidates.map((character) => {
       let distance = 0;
       AXES.forEach((axis) => {
         const weight = (MATCHING_WEIGHTS && MATCHING_WEIGHTS[axis]) || 1;
@@ -301,12 +295,20 @@
     const pool = scored.filter((entry) => entry.distance <= bestDistance + tolerance);
 
     const picked = weightedRandomPick(pool);
-    const similar = pool
-      .filter((entry) => entry.character.id !== picked.character.id)
-      .slice(0, 2)
-      .map((entry) => entry.character);
+    return { character: picked.character, distance: picked.distance };
+  }
 
-    return { character: picked.character, distance: picked.distance, similarCharacters: similar };
+  // 치이카와 세계관 / 디즈니 세계관 / 픽사 세계관 각각에서 1명씩,
+  // 총 3명의 결과를 UNIVERSE_ORDER 순서대로 계산한다.
+  const characterGroups = groupCharactersByUniverse(characterSet);
+
+  function findMatchesForAllUniverses(userVector) {
+    return UNIVERSE_ORDER.map((universe) => {
+      const candidates = characterGroups[universe] || [];
+      const { character, distance } = findClosestCharacter(userVector, candidates);
+      const similarity = calcSimilarity(distance);
+      return { universe, character, similarity };
+    });
   }
 
   // 거리가 가까울수록(distance가 작을수록) 더 높은 확률로 뽑히는 가중 랜덤 선택.
@@ -341,15 +343,13 @@
   function finishTest() {
     const rawVector = computeRawVector();
     const userVector = normalizeVector(rawVector, questions.length);
-    const { character, distance } = findClosestCharacter(userVector);
-    const similarity = calcSimilarity(distance);
+    const results = findMatchesForAllUniverses(userVector);
 
-    state.finishedCharacterId = character.id;
-    state.finishedSimilarity = similarity;
     state.finishedVector = userVector;
+    state.finishedResults = results.map((r) => ({ universe: r.universe, characterId: r.character.id, similarity: r.similarity }));
     saveState();
 
-    renderResult(character, similarity, userVector);
+    renderResult(userVector, results);
     showScreen("result");
     pushHistoryState("result");
   }
@@ -370,14 +370,8 @@
     return Math.max(4, Math.min(100, percent));
   }
 
-  function renderResult(character, similarity, userVector) {
-    el.resultEmoji.textContent = character.emoji || "✨"; // 사진 로드 실패 시의 대체 표시용
-    setResultPhoto(character);
-    el.resultName.textContent = character.name;
-    el.resultMatch.textContent = "당신과 " + similarity + "% 닮았어요!";
-    el.resultTagline.textContent = "\u201C" + character.tagline + "\u201D";
-    el.resultDescription.textContent = character.description;
-
+  function renderResult(userVector, results) {
+    // 사용자 자신의 성향 그래프는 캐릭터와 무관하게 공통으로 한 번만 그린다.
     el.traitBars.innerHTML = "";
     AXES.forEach((axis) => {
       const row = document.createElement("div");
@@ -405,51 +399,129 @@
       });
     });
 
-    el.resultTraits.innerHTML = "";
-    (character.traits || []).forEach((trait) => {
-      const li = document.createElement("li");
-      li.textContent = trait;
-      el.resultTraits.appendChild(li);
-    });
-
-    el.resultReasons.innerHTML = "";
-    (character.reasons || []).forEach((reason) => {
-      const li = document.createElement("li");
-      li.textContent = reason;
-      el.resultReasons.appendChild(li);
+    // 치이카와 세계관 / 디즈니 세계관 / 픽사 세계관 순서로 카드 3개 생성
+    el.resultGroups.innerHTML = "";
+    results.forEach((result) => {
+      el.resultGroups.appendChild(createResultGroupCard(result));
     });
 
     applyEmojiSupport(screens.result);
   }
 
+  // 유니버스 1개(치이카와/디즈니/픽사)에 대한 결과 카드 하나를 만든다.
+  function createResultGroupCard(result) {
+    const character = result.character;
+
+    const card = document.createElement("div");
+    card.className = "result-group";
+
+    const universeLabel = document.createElement("p");
+    universeLabel.className = "result-group-universe";
+    universeLabel.textContent = result.universe;
+    card.appendChild(universeLabel);
+
+    const figure = document.createElement("div");
+    figure.className = "result-group-figure";
+    const img = document.createElement("img");
+    img.className = "result-group-photo";
+    img.alt = character.name + " 캐릭터 이미지";
+    img.hidden = true;
+    const fallback = document.createElement("span");
+    fallback.className = "result-group-fallback";
+    fallback.textContent = character.emoji || "✨";
+    figure.appendChild(img);
+    figure.appendChild(fallback);
+    card.appendChild(figure);
+    setPhotoElement(img, fallback, character);
+
+    const name = document.createElement("h3");
+    name.className = "result-group-name";
+    name.textContent = character.name;
+    card.appendChild(name);
+
+    const match = document.createElement("p");
+    match.className = "result-group-match";
+    match.textContent = "당신과 " + result.similarity + "% 닮았어요!";
+    card.appendChild(match);
+
+    const tagline = document.createElement("p");
+    tagline.className = "result-group-tagline";
+    tagline.textContent = "\u201C" + character.tagline + "\u201D";
+    card.appendChild(tagline);
+
+    const details = document.createElement("details");
+    details.className = "result-group-details";
+    const summary = document.createElement("summary");
+    summary.textContent = "자세히 보기";
+    details.appendChild(summary);
+
+    const description = document.createElement("p");
+    description.className = "result-group-description";
+    description.textContent = character.description;
+    details.appendChild(description);
+
+    if (character.traits && character.traits.length) {
+      const traitsTitle = document.createElement("h4");
+      traitsTitle.className = "result-group-subtitle";
+      traitsTitle.textContent = "이런 사람이에요";
+      details.appendChild(traitsTitle);
+
+      const traitsList = document.createElement("ul");
+      traitsList.className = "result-list";
+      character.traits.forEach((trait) => {
+        const li = document.createElement("li");
+        li.textContent = trait;
+        traitsList.appendChild(li);
+      });
+      details.appendChild(traitsList);
+    }
+
+    if (character.reasons && character.reasons.length) {
+      const reasonsTitle = document.createElement("h4");
+      reasonsTitle.className = "result-group-subtitle";
+      reasonsTitle.textContent = "당신과 닮은 이유";
+      details.appendChild(reasonsTitle);
+
+      const reasonsList = document.createElement("ul");
+      reasonsList.className = "result-list";
+      character.reasons.forEach((reason) => {
+        const li = document.createElement("li");
+        li.textContent = reason;
+        reasonsList.appendChild(li);
+      });
+      details.appendChild(reasonsList);
+    }
+
+    card.appendChild(details);
+
+    return card;
+  }
+
   // 캐릭터 사진(character.image)을 불러와 보여주고, 파일이 아직 없거나
   // 로드에 실패하면 자동으로 이모지로 대체한다. (요구사항: 별도 경로에 저장할
   // 사진을 불러와 쓰기 — getCharacterImageUrl()이 실제 경로를 만들어준다)
-  function setResultPhoto(character) {
-    if (!el.resultPhoto) return;
-
+  function setPhotoElement(imgEl, fallbackEl, character) {
     const url = typeof getCharacterImageUrl === "function" ? getCharacterImageUrl(character) : "";
 
     // 새 캐릭터로 바뀔 때 이전 사진이 잠깐 남아 보이지 않도록 먼저 숨긴다.
-    el.resultPhoto.hidden = true;
+    imgEl.hidden = true;
 
     if (!url) {
-      el.resultEmoji.hidden = false;
+      fallbackEl.hidden = false;
       return;
     }
 
-    el.resultPhoto.onload = () => {
-      el.resultPhoto.hidden = false;
-      el.resultEmoji.hidden = true;
+    imgEl.onload = () => {
+      imgEl.hidden = false;
+      fallbackEl.hidden = true;
     };
-    el.resultPhoto.onerror = () => {
+    imgEl.onerror = () => {
       // 사진 파일을 아직 넣지 않았거나 경로가 다르면 이모지로 자연스럽게 대체
-      el.resultPhoto.hidden = true;
-      el.resultEmoji.hidden = false;
+      imgEl.hidden = true;
+      fallbackEl.hidden = false;
     };
 
-    el.resultPhoto.alt = character.name + " 캐릭터 이미지";
-    el.resultPhoto.src = url;
+    imgEl.src = url;
   }
 
   // 매칭 후보 풀("비슷한 유형")은 여러 캐릭터 중 가중 랜덤으로 결과를 고르는 데는
@@ -465,12 +537,22 @@
   /* ----------------------------------------------------------------- */
   /* 8. 결과 공유 (요구사항 15) — 나중에 카카오톡 공유 등으로 교체하기 쉽게 분리 */
   /* ----------------------------------------------------------------- */
+  // 치이카와/디즈니/픽사 3개 결과를 한 줄씩 묶어 공유 텍스트를 만든다.
+  function buildShareText() {
+    if (!state.finishedResults || !state.finishedResults.length) return activeTest.title;
+
+    const lines = state.finishedResults.map((r) => {
+      const character = characterSet.find((c) => c.id === r.characterId);
+      const name = character ? character.name : "?";
+      return r.universe + ": " + name + " (" + r.similarity + "%)";
+    });
+
+    return "나와 닮은 캐릭터 3인방!\n" + lines.join("\n");
+  }
+
   function shareResult() {
-    const character = characterSet.find((c) => c.id === state.finishedCharacterId);
     const shareTitle = activeTest.title;
-    const shareText = character
-      ? "나와 닮은 캐릭터는 " + character.name + "! (" + state.finishedSimilarity + "% 일치)"
-      : activeTest.title;
+    const shareText = buildShareText();
     const shareUrl = window.location.href;
 
     if (navigator.share) {
@@ -533,14 +615,24 @@
     }
   }
 
+  // sessionStorage에는 캐릭터 id만 저장되므로, 복원 시 실제 캐릭터 객체로 다시 매핑한다.
+  function resolveFinishedResults() {
+    if (!state.finishedResults) return null;
+    const resolved = state.finishedResults.map((r) => {
+      const character = characterSet.find((c) => c.id === r.characterId);
+      if (!character) return null;
+      return { universe: r.universe, character, similarity: r.similarity };
+    });
+    return resolved.every(Boolean) ? resolved : null;
+  }
+
   window.addEventListener("popstate", (event) => {
     const target = event.state && event.state.appScreen;
 
     if (target === "quiz") {
       // 결과 화면에서 뒤로가기를 누른 경우 -> 마지막 문항으로 돌아가 답을 바꿀 수 있게 한다.
       // (문항을 답하는 도중의 뒤로가기는 히스토리에 별도로 쌓지 않으므로 이 분기로 오지 않는다.)
-      state.finishedCharacterId = null;
-      state.finishedSimilarity = undefined;
+      state.finishedResults = null;
       state.finishedVector = undefined;
       saveState();
       showScreen("quiz");
@@ -548,10 +640,10 @@
       return;
     }
 
-    if (target === "result" && state.finishedCharacterId) {
-      const character = characterSet.find((c) => c.id === state.finishedCharacterId);
-      if (character) {
-        renderResult(character, state.finishedSimilarity, state.finishedVector);
+    if (target === "result" && state.finishedResults) {
+      const results = resolveFinishedResults();
+      if (results) {
+        renderResult(state.finishedVector, results);
         showScreen("result");
         return;
       }
@@ -578,10 +670,10 @@
     if (saved) {
       state = Object.assign(state, saved);
 
-      if (state.finishedCharacterId) {
-        const character = characterSet.find((c) => c.id === state.finishedCharacterId);
-        if (character) {
-          renderResult(character, state.finishedSimilarity, state.finishedVector);
+      if (state.finishedResults) {
+        const results = resolveFinishedResults();
+        if (results) {
+          renderResult(state.finishedVector, results);
           showScreen("result");
           pushHistoryState("result");
           return;
