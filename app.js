@@ -49,7 +49,6 @@
     resultName: document.getElementById("result-name"),
     resultMatch: document.getElementById("result-match"),
     resultTagline: document.getElementById("result-tagline"),
-    resultSimilar: document.getElementById("result-similar"),
     traitBars: document.getElementById("trait-bars"),
     resultDescription: document.getElementById("result-description"),
     resultTraits: document.getElementById("result-traits"),
@@ -269,8 +268,8 @@
   // "가장 가까운 1명"만 고정으로 뽑으면 비슷한 유형을 여러 개 넣어둔 의미가
   // 없어지므로, 최소 거리 기준 MATCH_POOL_TOLERANCE 이내의 캐릭터들을
   // "후보 풀"로 묶고 그 안에서 거리에 반비례하는 가중 랜덤으로 최종 결과를
-  // 고른다. 결과 화면에서는 같은 풀에 있던 다른 캐릭터도 "비슷한 유형"으로
-  // 함께 보여준다.
+  // 고른다. (화면에는 최종 선택된 1명만 보여주고, 후보 풀 자체는 화면에 노출하지 않는다.
+  // similarCharacters는 이후 다른 기능에서 활용할 수 있도록 함께 반환만 해둔다.)
   function findClosestCharacter(userVector) {
     const scored = characterSet.map((character) => {
       let distance = 0;
@@ -328,27 +327,17 @@
   function finishTest() {
     const rawVector = computeRawVector();
     const userVector = normalizeVector(rawVector, questions.length);
-    const { character, distance, similarCharacters } = findClosestCharacter(userVector);
+    const { character, distance } = findClosestCharacter(userVector);
     const similarity = calcSimilarity(distance);
 
     state.finishedCharacterId = character.id;
     state.finishedSimilarity = similarity;
     state.finishedVector = userVector;
-    // 새로고침 후에도 "비슷한 유형"을 그대로 보여줄 수 있도록 id만 저장한다.
-    state.finishedSimilarIds = similarCharacters.map((c) => c.id);
     saveState();
 
-    renderResult(character, similarity, userVector, similarCharacters);
+    renderResult(character, similarity, userVector);
     showScreen("result");
     pushHistoryState("result");
-  }
-
-  // sessionStorage에는 id만 저장되므로, 복원 시 실제 캐릭터 객체로 다시 매핑한다.
-  function resolveSimilarCharacters(ids) {
-    if (!ids || !ids.length) return [];
-    return ids
-      .map((id) => characterSet.find((c) => c.id === id))
-      .filter(Boolean);
   }
 
   /* ----------------------------------------------------------------- */
@@ -367,7 +356,7 @@
     return Math.max(4, Math.min(100, percent));
   }
 
-  function renderResult(character, similarity, userVector, similarCharacters) {
+  function renderResult(character, similarity, userVector) {
     el.resultEmoji.textContent = character.emoji || "✨"; // 사진 로드 실패 시의 대체 표시용
     setResultPhoto(character);
     el.resultName.textContent = character.name;
@@ -416,7 +405,6 @@
       el.resultReasons.appendChild(li);
     });
 
-    renderSimilarCharacters(similarCharacters);
     applyEmojiSupport(screens.result);
   }
 
@@ -450,20 +438,8 @@
     el.resultPhoto.src = url;
   }
 
-  // "비슷한 유형" 표시 — 매칭 후보 풀에 함께 있었던 다른 캐릭터를 살짝 보여준다.
-  function renderSimilarCharacters(similarCharacters) {
-    if (!el.resultSimilar) return;
-
-    if (!similarCharacters || similarCharacters.length === 0) {
-      el.resultSimilar.hidden = true;
-      el.resultSimilar.textContent = "";
-      return;
-    }
-
-    const names = similarCharacters.map((c) => c.name).join(", ");
-    el.resultSimilar.textContent = "이런 캐릭터와도 닮았어요: " + names;
-    el.resultSimilar.hidden = false;
-  }
+  // 매칭 후보 풀("비슷한 유형")은 여러 캐릭터 중 가중 랜덤으로 결과를 고르는 데는
+  // 계속 쓰이지만(findClosestCharacter 참고), 화면에 별도 텍스트로 보여주지는 않는다.
 
   function restartTest() {
     clearState();
@@ -551,7 +527,6 @@
       state.finishedCharacterId = null;
       state.finishedSimilarity = undefined;
       state.finishedVector = undefined;
-      state.finishedSimilarIds = undefined;
       saveState();
       showScreen("quiz");
       renderQuestion();
@@ -561,8 +536,7 @@
     if (target === "result" && state.finishedCharacterId) {
       const character = characterSet.find((c) => c.id === state.finishedCharacterId);
       if (character) {
-        const similar = resolveSimilarCharacters(state.finishedSimilarIds);
-        renderResult(character, state.finishedSimilarity, state.finishedVector, similar);
+        renderResult(character, state.finishedSimilarity, state.finishedVector);
         showScreen("result");
         return;
       }
@@ -592,8 +566,7 @@
       if (state.finishedCharacterId) {
         const character = characterSet.find((c) => c.id === state.finishedCharacterId);
         if (character) {
-          const similar = resolveSimilarCharacters(state.finishedSimilarIds);
-          renderResult(character, state.finishedSimilarity, state.finishedVector, similar);
+          renderResult(character, state.finishedSimilarity, state.finishedVector);
           showScreen("result");
           pushHistoryState("result");
           return;

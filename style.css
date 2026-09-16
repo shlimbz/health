@@ -1,29 +1,29 @@
 /* =========================================================================
    style.css
-   "나와 닮은 캐릭터는?" — 심야 점술관 컨셉의 캐릭터 매칭 테스트
+   "나와 닮은 캐릭터는?" — 화사하고 발랄한 파스텔 컨셉의 캐릭터 매칭 테스트
    ========================================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 
 :root {
   /* --- color tokens --- */
-  --bg-deep-1: #170f2e;
-  --bg-deep-2: #2c1a52;
-  --bg-deep-3: #3d2170;
-  --surface: #fbf7ff;
-  --surface-soft: #f1e9ff;
-  --ink: #241748;
-  --ink-soft: #5b4f80;
-  --mist: #efe9ff;
-  --mist-dim: #b7a9df;
-  --gold: #ffd166;
+  --bg-1: #fff8f0;
+  --bg-2: #ffeef6;
+  --bg-3: #f2ecff;
+  --surface: #ffffff;
+  --surface-soft: #fff1f6;
+  --surface-soft-2: #f3ecff;
+  --ink: #3a2b56;
+  --ink-soft: #8478a0;
+  --chip: #fff0d9;
+  --gold: #ffb648;
   --coral: #ff6f91;
   --coral-deep: #e14f74;
-  --line: rgba(255, 255, 255, 0.14);
+  --line: rgba(58, 43, 86, 0.1);
 
   --radius-card: 28px;
   --radius-pill: 999px;
-  --shadow-float: 0 24px 60px rgba(12, 6, 32, 0.45);
+  --shadow-float: 0 24px 55px rgba(255, 143, 171, 0.28);
 
   --font-display: 'Jua', 'Noto Sans KR', sans-serif;
   --font-body: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -49,11 +49,12 @@ html, body {
 body {
   min-height: 100vh;
   font-family: var(--font-body);
-  color: var(--mist);
+  color: var(--ink);
   background:
-    radial-gradient(ellipse 70% 50% at 20% -10%, rgba(255, 209, 102, 0.10), transparent 60%),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(255, 111, 145, 0.14), transparent 55%),
-    linear-gradient(160deg, var(--bg-deep-1) 0%, var(--bg-deep-2) 55%, var(--bg-deep-3) 100%);
+    radial-gradient(ellipse 55% 45% at 12% 5%, rgba(255, 182, 72, 0.35), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 92% 12%, rgba(255, 111, 145, 0.30), transparent 58%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(178, 148, 255, 0.28), transparent 62%),
+    linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
 }
@@ -67,21 +68,21 @@ body {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.55) 50%, transparent 51%),
-    radial-gradient(2px 2px at 80% 15%, rgba(255,255,255,0.4) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 50% 8%, rgba(255,255,255,0.5) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 30% 60%, rgba(255,255,255,0.3) 50%, transparent 51%),
-    radial-gradient(2px 2px at 90% 70%, rgba(255,255,255,0.35) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 65% 45%, rgba(255,255,255,0.4) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 15% 85%, rgba(255,255,255,0.3) 50%, transparent 51%),
-    radial-gradient(2px 2px at 45% 90%, rgba(255,255,255,0.3) 50%, transparent 51%);
+    radial-gradient(3px 3px at 10% 22%, rgba(255, 182, 72, 0.65) 50%, transparent 51%),
+    radial-gradient(3px 3px at 82% 14%, rgba(255, 111, 145, 0.55) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 48% 8%, rgba(178, 148, 255, 0.55) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 28% 62%, rgba(255, 111, 145, 0.4) 50%, transparent 51%),
+    radial-gradient(3px 3px at 90% 72%, rgba(255, 182, 72, 0.5) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 65% 46%, rgba(178, 148, 255, 0.45) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 15% 88%, rgba(255, 111, 145, 0.4) 50%, transparent 51%),
+    radial-gradient(3px 3px at 45% 92%, rgba(255, 182, 72, 0.45) 50%, transparent 51%);
   background-repeat: no-repeat;
-  animation: twinkle 6s ease-in-out infinite;
+  animation: sparkle-drift 7s ease-in-out infinite;
 }
 
-@keyframes twinkle {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+@keyframes sparkle-drift {
+  0%, 100% { opacity: 0.55; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -218,8 +219,8 @@ body {
   margin-top: 22px;
   text-align: center;
   font-size: 12.5px;
-  color: var(--mist-dim);
-  background: var(--bg-deep-2);
+  color: var(--ink-soft);
+  background: var(--chip);
   border-radius: var(--radius-pill);
   padding: 8px 14px;
   display: none; /* 실제 참여자 수 데이터 연동 전까지는 숨김 */
@@ -362,7 +363,7 @@ body {
 .result-eyebrow {
   text-align: center;
   font-size: 13px;
-  color: var(--mist-dim);
+  color: var(--ink-soft);
   letter-spacing: 0.3px;
   margin: 0 0 6px;
 }
@@ -432,18 +433,6 @@ body {
   color: var(--ink-soft);
   margin: 0 0 26px;
   line-height: 1.6;
-}
-
-.result-similar {
-  text-align: center;
-  font-size: 12.5px;
-  color: var(--mist-dim);
-  background: var(--bg-deep-2);
-  border-radius: var(--radius-pill);
-  padding: 7px 14px;
-  margin: 0 auto 22px;
-  width: fit-content;
-  max-width: 100%;
 }
 
 .result-section {

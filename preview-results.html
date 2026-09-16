@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>결과 화면 전체 미리보기 (QA용)</title>
+<meta name="robots" content="noindex" />
+<link rel="stylesheet" href="style.css" />
+<style>
+  /* 이 페이지 전용 스타일 — 실제 서비스 파일이 아니라 확인용 페이지이므로 style.css 위에 덧붙인다 */
+  body {
+    padding: 24px 16px 60px;
+    display: block;
+  }
+  .app-shell { display: block; padding: 0; }
+
+  .qa-header {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    color: var(--ink);
+  }
+  .qa-header h1 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    margin: 0 0 6px;
+  }
+  .qa-header p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .qa-summary {
+    display: inline-flex;
+    gap: 14px;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  .qa-summary span {
+    background: rgba(255, 255, 255, 0.75);
+    padding: 6px 12px;
+    border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(58, 43, 86, 0.08);
+  }
+  .qa-summary .ok { color: #1f8a4c; }
+  .qa-summary .fail { color: #d92a4f; }
+
+  .qa-filter {
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .qa-filter button {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--ink);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .qa-filter button.is-active {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: #fff;
+  }
+
+  .qa-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 16px;
+  }
+
+  .qa-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 10px 24px rgba(12, 6, 32, 0.35);
+    position: relative;
+  }
+  .qa-card[data-status="fail"] {
+    outline: 2px solid #ff5c7a;
+  }
+  .qa-card[data-status="fail"][data-visible="false"] { display: none; }
+  .qa-card[data-status="ok"][data-visible="false"] { display: none; }
+
+  .qa-photo-box {
+    width: 100%;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    background: var(--surface-soft);
+    overflow: hidden;
+    padding: 8px;
+  }
+  .qa-photo-box img {
+    max-width: 100%;
+    max-height: 180px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    display: block;
+  }
+  .qa-photo-box .qa-fallback-emoji {
+    font-size: 56px;
+  }
+
+  .qa-name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--ink);
+    margin: 0 0 2px;
+  }
+  .qa-family {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+  }
+  .qa-status {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .qa-status.ok {
+    background: #e3f9e9;
+    color: #1f8a4c;
+  }
+  .qa-status.fail {
+    background: #ffe4e9;
+    color: #d92a4f;
+  }
+  .qa-filename {
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    word-break: break-all;
+  }
+</style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+
+  <div class="qa-header">
+    <h1>🔍 결과 화면 전체 미리보기 (QA용)</h1>
+    <p>
+      실제 서비스에는 포함되지 않는 확인용 페이지입니다. 45개 캐릭터 각각의 결과 카드(사진 + 이름 + 세계관)를
+      한 화면에서 훑어보면서, 이미지가 전부 정상적으로 적용됐는지 빠르게 확인할 수 있어요.
+      사진이 안 뜨는 캐릭터는 자동으로 빨간 테두리와 "이미지 로드 실패" 표시가 붙습니다.
+    </p>
+    <div class="qa-summary">
+      <span class="ok">✅ 로드 성공: <span id="ok-count">0</span></span>
+      <span class="fail">⚠️ 로드 실패: <span id="fail-count">0</span></span>
+      <span>전체: <span id="total-count">0</span></span>
+    </div>
+  </div>
+
+  <div class="qa-filter" id="family-filter"></div>
+
+  <div class="qa-grid" id="qa-grid"></div>
+
+  <script src="characters.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const grid = document.getElementById("qa-grid");
+      const okCountEl = document.getElementById("ok-count");
+      const failCountEl = document.getElementById("fail-count");
+      const totalCountEl = document.getElementById("total-count");
+      const filterEl = document.getElementById("family-filter");
+
+      const characters = CHARACTER_SETS.default;
+      totalCountEl.textContent = characters.length;
+
+      let okCount = 0;
+      let failCount = 0;
+
+      function updateCounts() {
+        okCountEl.textContent = okCount;
+        failCountEl.textContent = failCount;
+      }
+
+      function createCard(character) {
+        const card = document.createElement("div");
+        card.className = "qa-card";
+        card.dataset.family = character.family || "기타";
+        card.dataset.status = "pending";
+        card.dataset.visible = "true";
+
+        const photoBox = document.createElement("div");
+        photoBox.className = "qa-photo-box";
+
+        const img = document.createElement("img");
+        img.alt = character.name;
+        const fallback = document.createElement("span");
+        fallback.className = "qa-fallback-emoji";
+        fallback.textContent = character.emoji || "❓";
+        fallback.hidden = true;
+
+        const url = typeof getCharacterImageUrl === "function" ? getCharacterImageUrl(character) : "";
+
+        img.onload = () => {
+          card.dataset.status = "ok";
+          statusBadge.textContent = "✅ 로드 성공";
+          statusBadge.className = "qa-status ok";
+          okCount += 1;
+          updateCounts();
+        };
+        img.onerror = () => {
+          img.hidden = true;
+          fallback.hidden = false;
+          card.dataset.status = "fail";
+          statusBadge.textContent = "⚠️ 이미지 로드 실패";
+          statusBadge.className = "qa-status fail";
+          failCount += 1;
+          updateCounts();
+        };
+        img.src = url;
+
+        photoBox.appendChild(img);
+        photoBox.appendChild(fallback);
+
+        const name = document.createElement("p");
+        name.className = "qa-name";
+        name.textContent = character.name;
+
+        const family = document.createElement("p");
+        family.className = "qa-family";
+        family.textContent = character.family || "";
+
+        const statusBadge = document.createElement("span");
+        statusBadge.className = "qa-status";
+        statusBadge.textContent = "확인 중...";
+
+        const filename = document.createElement("p");
+        filename.className = "qa-filename";
+        filename.textContent = character.image;
+
+        card.appendChild(photoBox);
+        card.appendChild(name);
+        card.appendChild(family);
+        card.appendChild(statusBadge);
+        card.appendChild(filename);
+
+        return card;
+      }
+
+      characters.forEach((character) => {
+        grid.appendChild(createCard(character));
+      });
+
+      // 세계관(family)별 필터 버튼 생성
+      const families = ["전체", ...Array.from(new Set(characters.map((c) => c.family || "기타")))];
+      families.forEach((family) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = family;
+        if (family === "전체") btn.classList.add("is-active");
+        btn.addEventListener("click", () => {
+          Array.from(filterEl.children).forEach((b) => b.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          Array.from(grid.children).forEach((card) => {
+            const show = family === "전체" || card.dataset.family === family;
+            card.dataset.visible = show ? "true" : "false";
+          });
+        });
+        filterEl.appendChild(btn);
+      });
+
+      // 이모지(폴백 아이콘, family 라벨 등)도 Twemoji로 통일하고 싶다면 아래 스크립트를 index.html과
+      // 동일하게 추가하면 된다. QA 페이지 목적상 여기서는 생략했다.
+    })();
+  </script>
+</body>
+</html>
