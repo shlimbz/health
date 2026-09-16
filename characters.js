@@ -443,7 +443,7 @@ const CHARACTER_SETS = {
       emoji: "🍎",
       image: "evil-queen.webp",
       family: "디즈니 빌런",
-      personality: { energy: -0.5, action: 0, emotion: -1.5, lifestyle: -1.5 },
+      personality: { energy: -1, action: -0.5, emotion: -2, lifestyle: -1 },
       tagline: "완벽을 추구하는 자존심 강한 완벽주의자",
       description:
         "자기 관리에 철저하고 지는 걸 싫어하는 타입이에요. 감정을 잘 드러내지 않으면서도 내면에는 강한 승부욕과 자존심을 갖고 있어요.",
