@@ -336,6 +336,12 @@ body {
   background: linear-gradient(135deg, #fff0f3, #fdeaff);
 }
 
+/* 이미 답했던 문항으로 되돌아왔을 때, 이전 선택지를 은은하게 표시 (클릭 순간의 축소 효과는 주지 않음) */
+.answer-btn.is-previous-choice {
+  border-color: var(--coral);
+  background: linear-gradient(135deg, #fff6f8, #fdf5ff);
+}
+
 /* 질문 전환 애니메이션 */
 .quiz-body {
   animation: question-in 0.32s ease;

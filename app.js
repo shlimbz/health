@@ -175,6 +175,11 @@
       btn.className = "answer-btn";
       btn.setAttribute("data-answer-index", String(answerIdx));
 
+      // 이전에 이미 선택했던 답이라면(뒤로가기 등으로 재방문) 시각적으로 표시해준다.
+      if (state.answerIndices[idx] === answerIdx) {
+        btn.classList.add("is-previous-choice");
+      }
+
       const emojiSpan = document.createElement("span");
       emojiSpan.className = "answer-emoji";
       emojiSpan.textContent = answer.emoji || "";
@@ -210,7 +215,10 @@
         state.currentIndex += 1;
         saveState();
         renderQuestion();
-        pushHistoryState("quiz");
+        // 문항마다 히스토리를 쌓지 않는다 — 브라우저 뒤로가기는 "퀴즈 화면 진입 전"으로
+        // 돌아가는 화면 단위 동작으로 통일하고, 문항 간 이동은 화면 안의 '‹' 버튼이 담당한다.
+        // (이렇게 하지 않으면 뒤로가기를 눌러도 실제로는 같은 문항이 다시 그려지기만 하고
+        // 이전 문항으로 돌아가지 않는 혼란스러운 동작이 생긴다.)
       } else {
         finishTest();
       }
@@ -229,7 +237,7 @@
   /* ----------------------------------------------------------------- */
   const AXES = ["energy", "action", "emotion", "lifestyle"];
 
-  // 16개 질문의 누적 점수를 계산한다. (요구사항 7)
+  // 전체 질문의 누적 점수를 계산한다. (요구사항 7)
   function computeRawVector() {
     const totals = { energy: 0, action: 0, emotion: 0, lifestyle: 0 };
     questions.forEach((q, idx) => {
@@ -257,7 +265,7 @@
   // 요구사항 9: 4개 축의 차이를 계산해 가장 가까운 캐릭터를 찾는다.
   // 가중치(MATCHING_WEIGHTS)는 characters.js에서 손쉽게 조정할 수 있다.
   //
-  // 캐릭터가 많아지면서(현재 44종) 성향이 비슷한 캐릭터들이 여러 개 생긴다.
+  // 캐릭터가 많아지면서(현재 45종) 성향이 비슷한 캐릭터들이 여러 개 생긴다.
   // "가장 가까운 1명"만 고정으로 뽑으면 비슷한 유형을 여러 개 넣어둔 의미가
   // 없어지므로, 최소 거리 기준 MATCH_POOL_TOLERANCE 이내의 캐릭터들을
   // "후보 풀"로 묶고 그 안에서 거리에 반비례하는 가중 랜덤으로 최종 결과를
@@ -420,8 +428,10 @@
 
     const url = typeof getCharacterImageUrl === "function" ? getCharacterImageUrl(character) : "";
 
+    // 새 캐릭터로 바뀔 때 이전 사진이 잠깐 남아 보이지 않도록 먼저 숨긴다.
+    el.resultPhoto.hidden = true;
+
     if (!url) {
-      el.resultPhoto.hidden = true;
       el.resultEmoji.hidden = false;
       return;
     }
@@ -468,7 +478,7 @@
     const character = characterSet.find((c) => c.id === state.finishedCharacterId);
     const shareTitle = activeTest.title;
     const shareText = character
-      ? "나와 닮은 캐릭터는 " + character.emoji + " " + character.name + "! (" + state.finishedSimilarity + "% 일치)"
+      ? "나와 닮은 캐릭터는 " + character.name + "! (" + state.finishedSimilarity + "% 일치)"
       : activeTest.title;
     const shareUrl = window.location.href;
 
@@ -536,10 +546,13 @@
     const target = event.state && event.state.appScreen;
 
     if (target === "quiz") {
-      // 결과 화면에서 뒤로가기 -> 마지막 질문으로 복귀
-      if (state.answerIndices.length > 0) {
-        state.currentIndex = Math.min(state.currentIndex, questions.length - 1);
-      }
+      // 결과 화면에서 뒤로가기를 누른 경우 -> 마지막 문항으로 돌아가 답을 바꿀 수 있게 한다.
+      // (문항을 답하는 도중의 뒤로가기는 히스토리에 별도로 쌓지 않으므로 이 분기로 오지 않는다.)
+      state.finishedCharacterId = null;
+      state.finishedSimilarity = undefined;
+      state.finishedVector = undefined;
+      state.finishedSimilarIds = undefined;
+      saveState();
       showScreen("quiz");
       renderQuestion();
       return;
