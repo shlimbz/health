@@ -15,11 +15,16 @@
   /* 0. 설정값                                                          */
   /* ----------------------------------------------------------------- */
   const ACTIVE_TEST_ID = "character-match"; // tests.js 의 TEST_DEFINITIONS 키
-  const STORAGE_KEY = "character-test:progress:v1";
+  const STORAGE_KEY = "character-test:progress:v2";
 
   const activeTest = TEST_DEFINITIONS[ACTIVE_TEST_ID];
-  const questions = activeTest.questions;
+  const questionPool = activeTest.questionPool;
+  const QUESTIONS_PER_TEST = activeTest.questionsPerTest || questionPool.length;
   const characterSet = CHARACTER_SETS[activeTest.characterSetKey] || CHARACTER_SETS.default;
+
+  // 실제 이번 회차에 사용할 질문 배열. startTest()에서 selectBalancedQuestions()로
+  // 채워지고, 새로고침 시에는 저장된 순서를 그대로 복원한다.
+  let questions = [];
 
   /* ----------------------------------------------------------------- */
   /* 1. DOM 참조                                                        */
@@ -74,13 +79,68 @@
   }
 
   /* ----------------------------------------------------------------- */
+  /* 2-2. 질문 풀에서 24개를 축별로 골고루 무작위 선택                     */
+  /* ----------------------------------------------------------------- */
+  // Fisher-Yates 셔플
+  function shuffle(array) {
+    const copy = array.slice();
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = copy[i];
+      copy[i] = copy[j];
+      copy[j] = tmp;
+    }
+    return copy;
+  }
+
+  // 질문 풀(50개)을 primaryAxis별로 묶은 뒤, 각 축에서 골고루 뽑아 총
+  // QUESTIONS_PER_TEST(24)개를 만든다. 이렇게 해야 매번 다른 조합이 나와도
+  // 4개 축을 빠짐없이, 비슷한 비중으로 측정할 수 있다("분별력 있게").
+  function selectBalancedQuestions() {
+    const byAxis = {};
+    questionPool.forEach((q) => {
+      const axis = q.primaryAxis || "etc";
+      if (!byAxis[axis]) byAxis[axis] = [];
+      byAxis[axis].push(q);
+    });
+
+    const axes = Object.keys(byAxis);
+    const perAxis = Math.floor(QUESTIONS_PER_TEST / axes.length);
+    let remainder = QUESTIONS_PER_TEST - perAxis * axes.length;
+
+    let selected = [];
+    axes.forEach((axis) => {
+      const shuffled = shuffle(byAxis[axis]);
+      let take = perAxis;
+      if (remainder > 0) {
+        take += 1;
+        remainder -= 1;
+      }
+      selected = selected.concat(shuffled.slice(0, take));
+    });
+
+    return shuffle(selected);
+  }
+
+  function resolveQuestionsFromIds(ids) {
+    if (!ids || !ids.length) return null;
+    const byId = {};
+    questionPool.forEach((q) => { byId[q.id] = q; });
+    const resolved = ids.map((id) => byId[id]).filter(Boolean);
+    return resolved.length === ids.length ? resolved : null;
+  }
+
+  /* ----------------------------------------------------------------- */
   /* 2. 상태 관리                                                       */
   /* ----------------------------------------------------------------- */
   let state = {
     testId: ACTIVE_TEST_ID,
+    questionIds: [], // 이번 회차에 뽑힌 24개 질문의 id (새로고침 시 순서 복원용)
     currentIndex: 0,
     answerIndices: [], // 각 질문에서 선택한 답변의 index (뒤로가기 지원)
-    finishedResults: null // [{ universe, characterId, similarity }, ...] (치이카와/디즈니/픽사 3개)
+    finishedCharacterId: null,
+    finishedSimilarity: null,
+    finishedVector: null
   };
 
   function saveState() {
@@ -106,7 +166,15 @@
   }
 
   function clearState() {
-    state = { testId: ACTIVE_TEST_ID, currentIndex: 0, answerIndices: [], finishedResults: null };
+    state = {
+      testId: ACTIVE_TEST_ID,
+      questionIds: [],
+      currentIndex: 0,
+      answerIndices: [],
+      finishedCharacterId: null,
+      finishedSimilarity: null,
+      finishedVector: null
+    };
     try {
       sessionStorage.removeItem(STORAGE_KEY);
     } catch (err) {
@@ -140,6 +208,9 @@
   function startTest() {
     isTransitioning = false;
     clearState();
+    questions = selectBalancedQuestions();
+    state.questionIds = questions.map((q) => q.id);
+    saveState();
     showScreen("quiz");
     renderQuestion();
     pushHistoryState("quiz");
@@ -199,6 +270,8 @@
   // 문항 전환 도중(160ms) 추가 클릭이 들어와도 무시하기 위한 잠금 플래그.
   // 이게 없으면 마지막 문항에서 더블클릭/더블탭 시 finishTest()가 두 번 실행되어,
   // 매칭에 포함된 랜덤 요소 때문에 결과 캐릭터가 한 번 바뀌어 보이는 문제가 있었다.
+  // finishTest()는 사진 미리 불러오기(preload)까지 끝나야 완전히 마무리되므로,
+  // 이 플래그는 그 시점(showResultScreen 완료)까지 계속 true로 유지된다.
   let isTransitioning = false;
 
   function selectAnswer(answerIdx, btnEl) {
@@ -221,11 +294,8 @@
         isTransitioning = false;
         // 문항마다 히스토리를 쌓지 않는다 — 브라우저 뒤로가기는 "퀴즈 화면 진입 전"으로
         // 돌아가는 화면 단위 동작으로 통일하고, 문항 간 이동은 화면 안의 '‹' 버튼이 담당한다.
-        // (이렇게 하지 않으면 뒤로가기를 눌러도 실제로는 같은 문항이 다시 그려지기만 하고
-        // 이전 문항으로 돌아가지 않는 혼란스러운 동작이 생긴다.)
       } else {
-        finishTest();
-        isTransitioning = false;
+        finishTest(); // 내부에서 이미지 preload가 끝나면 isTransitioning을 풀어준다.
       }
     }, 160);
   }
@@ -241,11 +311,11 @@
   /* ----------------------------------------------------------------- */
   /* 6. 점수 계산 & 캐릭터 매칭                                          */
   /* ----------------------------------------------------------------- */
-  const AXES = ["energy", "action", "emotion", "lifestyle"];
+  const AXES = ["energy", "sense", "emotion", "lifestyle"];
 
-  // 전체 질문의 누적 점수를 계산한다. (요구사항 7)
+  // 이번 회차에 뽑힌 질문들의 누적 점수를 계산한다.
   function computeRawVector() {
-    const totals = { energy: 0, action: 0, emotion: 0, lifestyle: 0 };
+    const totals = { energy: 0, sense: 0, emotion: 0, lifestyle: 0 };
     questions.forEach((q, idx) => {
       const answerIdx = state.answerIndices[idx];
       if (answerIdx === undefined) return; // 새로고침 등으로 비어있는 값 방어
@@ -258,8 +328,7 @@
   }
 
   // 캐릭터 데이터(-2 ~ +2)와 같은 스케일로 비교하기 위해
-  // "질문당 평균 점수"로 정규화한다. (질문 하나의 점수 범위도 -2 ~ +2 이므로
-  // 평균을 내면 캐릭터의 좌표 범위와 자연스럽게 맞아떨어진다.)
+  // "질문당 평균 점수"로 정규화한다.
   function normalizeVector(rawVector, questionCount) {
     const normalized = {};
     AXES.forEach((axis) => {
@@ -268,18 +337,17 @@
     return normalized;
   }
 
-  // 요구사항 9: 4개 축의 차이를 계산해 후보군(candidates) 중 가장 가까운 캐릭터를 찾는다.
+  // 4개 축의 차이를 계산해 가장 가까운 캐릭터를 찾는다.
   // 가중치(MATCHING_WEIGHTS)는 characters.js에서 손쉽게 조정할 수 있다.
   //
   // 캐릭터가 많아지면서(현재 45종) 성향이 비슷한 캐릭터들이 여러 개 생긴다.
   // "가장 가까운 1명"만 고정으로 뽑으면 비슷한 유형을 여러 개 넣어둔 의미가
   // 없어지므로, 최소 거리 기준 MATCH_POOL_TOLERANCE 이내의 캐릭터들을
   // "후보 풀"로 묶고 그 안에서 거리에 반비례하는 가중 랜덤으로 최종 결과를 고른다.
-  //
-  // candidates 인자를 받도록 만들어서, 전체 캐릭터뿐 아니라 특정 유니버스
-  // (치이카와/디즈니/픽사)로 좁힌 부분집합에 대해서도 그대로 재사용할 수 있다.
-  function findClosestCharacter(userVector, candidates) {
-    const scored = candidates.map((character) => {
+  // (비슷한 성향의 캐릭터가 여럿이면 그중 실제로 가장 가까운 쪽이 뽑힐 확률이
+  // 훨씬 높고, 아주 근소한 차이일 때만 가끔 다른 결과가 나온다.)
+  function findClosestCharacter(userVector) {
+    const scored = characterSet.map((character) => {
       let distance = 0;
       AXES.forEach((axis) => {
         const weight = (MATCHING_WEIGHTS && MATCHING_WEIGHTS[axis]) || 1;
@@ -298,19 +366,6 @@
     return { character: picked.character, distance: picked.distance };
   }
 
-  // 치이카와 세계관 / 디즈니 세계관 / 픽사 세계관 각각에서 1명씩,
-  // 총 3명의 결과를 UNIVERSE_ORDER 순서대로 계산한다.
-  const characterGroups = groupCharactersByUniverse(characterSet);
-
-  function findMatchesForAllUniverses(userVector) {
-    return UNIVERSE_ORDER.map((universe) => {
-      const candidates = characterGroups[universe] || [];
-      const { character, distance } = findClosestCharacter(userVector, candidates);
-      const similarity = calcSimilarity(distance);
-      return { universe, character, similarity };
-    });
-  }
-
   // 거리가 가까울수록(distance가 작을수록) 더 높은 확률로 뽑히는 가중 랜덤 선택.
   // pool이 1개뿐이면 그 캐릭터를 그대로 반환한다.
   function weightedRandomPick(pool) {
@@ -327,10 +382,9 @@
     return pool[pool.length - 1];
   }
 
-  // 요구사항 14: 임의의 숫자가 아니라 거리값을 기반으로 한 유사도(%) 계산.
+  // 임의의 숫자가 아니라 거리값을 기반으로 한 유사도(%) 계산.
   // 축 하나당 최대 차이는 4(-2~+2), 4개 축이므로 이론상 최대 거리는 16.
   // 최소 표시 유사도를 50%로 두어 "그럭저럭 닮았어요" 대신 긍정적인 톤을 유지한다.
-  // (이 숫자들은 아래 두 상수만 바꾸면 쉽게 조정할 수 있다.)
   const MAX_POSSIBLE_DISTANCE = 16;
   const MIN_DISPLAYED_SIMILARITY = 50;
 
@@ -340,18 +394,53 @@
     return clamped;
   }
 
+  /* ----------------------------------------------------------------- */
+  /* 6-1. 결과 사진 미리 불러오기 (요구사항: 결과 발표 전 다른 화면이       */
+  /*      잠깐 보이는 깜빡임 방지)                                       */
+  /* ----------------------------------------------------------------- */
+  // <img>가 화면에 붙은 뒤에야 로딩을 시작하면, 로딩되기 전까지는 이모지
+  // 폴백이 먼저 보였다가 사진으로 바뀌는 "깜빡임"이 생긴다. 화면을 보여주기
+  // 전에 미리 이미지를 브라우저 캐시에 올려두면, 실제로 <img>를 붙였을 때
+  // 이미 캐시에 있으니 onload가 사실상 즉시 발생해 깜빡임 없이 한 번에 나온다.
+  function preloadImage(url, timeoutMs) {
+    return new Promise((resolve) => {
+      if (!url) {
+        resolve();
+        return;
+      }
+      const img = new Image();
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        resolve();
+      };
+      img.onload = finish;
+      img.onerror = finish;
+      img.src = url;
+      window.setTimeout(finish, timeoutMs);
+    });
+  }
+
   function finishTest() {
     const rawVector = computeRawVector();
     const userVector = normalizeVector(rawVector, questions.length);
-    const results = findMatchesForAllUniverses(userVector);
+    const { character, distance } = findClosestCharacter(userVector);
+    const similarity = calcSimilarity(distance);
 
+    state.finishedCharacterId = character.id;
+    state.finishedSimilarity = similarity;
     state.finishedVector = userVector;
-    state.finishedResults = results.map((r) => ({ universe: r.universe, characterId: r.character.id, similarity: r.similarity }));
     saveState();
 
-    renderResult(userVector, results);
-    showScreen("result");
-    pushHistoryState("result");
+    const imageUrl = typeof getCharacterImageUrl === "function" ? getCharacterImageUrl(character) : "";
+
+    preloadImage(imageUrl, 600).then(() => {
+      renderResult(userVector, character, similarity);
+      showScreen("result");
+      pushHistoryState("result");
+      isTransitioning = false;
+    });
   }
 
   /* ----------------------------------------------------------------- */
@@ -359,19 +448,19 @@
   /* ----------------------------------------------------------------- */
   const TRAIT_LABELS = {
     energy: "사람과 함께",
-    action: "일단 행동",
+    sense: "상상·아이디어",
     emotion: "감정·공감",
     lifestyle: "자유로운 편"
   };
 
-  // -2~+2 값을 0~100% 막대 길이로 변환 (요구사항 7의 시각화)
+  // -2~+2 값을 0~100% 막대 길이로 변환
   function axisValueToBarPercent(value) {
     const percent = ((value + 2) / 4) * 100;
     return Math.max(4, Math.min(100, percent));
   }
 
-  function renderResult(userVector, results) {
-    // 사용자 자신의 성향 그래프는 캐릭터와 무관하게 공통으로 한 번만 그린다.
+  function renderResult(userVector, character, similarity) {
+    // 사용자 자신의 성향 그래프
     el.traitBars.innerHTML = "";
     AXES.forEach((axis) => {
       const row = document.createElement("div");
@@ -391,7 +480,6 @@
       row.appendChild(track);
       el.traitBars.appendChild(row);
 
-      // 살짝 지연 후 채워서 막대가 자라나는 애니메이션 연출
       window.requestAnimationFrame(() => {
         window.setTimeout(() => {
           fill.style.width = axisValueToBarPercent(userVector[axis]) + "%";
@@ -399,26 +487,17 @@
       });
     });
 
-    // 치이카와 세계관 / 디즈니 세계관 / 픽사 세계관 순서로 카드 3개 생성
     el.resultGroups.innerHTML = "";
-    results.forEach((result) => {
-      el.resultGroups.appendChild(createResultGroupCard(result));
-    });
+    el.resultGroups.appendChild(createResultCard(character, similarity));
 
     applyEmojiSupport(screens.result);
   }
 
-  // 유니버스 1개(치이카와/디즈니/픽사)에 대한 결과 카드 하나를 만든다.
-  function createResultGroupCard(result) {
-    const character = result.character;
-
+  // 캐릭터 결과 카드 하나를 만든다. (이미지는 finishTest에서 이미 preload된
+  // 상태이므로, 여기서는 그냥 <img>를 붙이기만 해도 거의 즉시 나타난다.)
+  function createResultCard(character, similarity) {
     const card = document.createElement("div");
     card.className = "result-group";
-
-    const universeLabel = document.createElement("p");
-    universeLabel.className = "result-group-universe";
-    universeLabel.textContent = result.universe;
-    card.appendChild(universeLabel);
 
     const figure = document.createElement("div");
     figure.className = "result-group-figure";
@@ -441,7 +520,7 @@
 
     const match = document.createElement("p");
     match.className = "result-group-match";
-    match.textContent = "당신과 " + result.similarity + "% 닮았어요!";
+    match.textContent = "당신과 " + similarity + "% 닮았어요!";
     card.appendChild(match);
 
     const tagline = document.createElement("p");
@@ -451,6 +530,7 @@
 
     const details = document.createElement("details");
     details.className = "result-group-details";
+    details.open = true; // 결과가 1개뿐이므로 바로 펼쳐서 보여준다.
     const summary = document.createElement("summary");
     summary.textContent = "자세히 보기";
     details.appendChild(summary);
@@ -498,12 +578,10 @@
   }
 
   // 캐릭터 사진(character.image)을 불러와 보여주고, 파일이 아직 없거나
-  // 로드에 실패하면 자동으로 이모지로 대체한다. (요구사항: 별도 경로에 저장할
-  // 사진을 불러와 쓰기 — getCharacterImageUrl()이 실제 경로를 만들어준다)
+  // 로드에 실패하면 자동으로 이모지로 대체한다.
   function setPhotoElement(imgEl, fallbackEl, character) {
     const url = typeof getCharacterImageUrl === "function" ? getCharacterImageUrl(character) : "";
 
-    // 새 캐릭터로 바뀔 때 이전 사진이 잠깐 남아 보이지 않도록 먼저 숨긴다.
     imgEl.hidden = true;
 
     if (!url) {
@@ -516,16 +594,12 @@
       fallbackEl.hidden = true;
     };
     imgEl.onerror = () => {
-      // 사진 파일을 아직 넣지 않았거나 경로가 다르면 이모지로 자연스럽게 대체
       imgEl.hidden = true;
       fallbackEl.hidden = false;
     };
 
     imgEl.src = url;
   }
-
-  // 매칭 후보 풀("비슷한 유형")은 여러 캐릭터 중 가중 랜덤으로 결과를 고르는 데는
-  // 계속 쓰이지만(findClosestCharacter 참고), 화면에 별도 텍스트로 보여주지는 않는다.
 
   function restartTest() {
     isTransitioning = false;
@@ -537,22 +611,12 @@
   /* ----------------------------------------------------------------- */
   /* 8. 결과 공유 (요구사항 15) — 나중에 카카오톡 공유 등으로 교체하기 쉽게 분리 */
   /* ----------------------------------------------------------------- */
-  // 치이카와/디즈니/픽사 3개 결과를 한 줄씩 묶어 공유 텍스트를 만든다.
-  function buildShareText() {
-    if (!state.finishedResults || !state.finishedResults.length) return activeTest.title;
-
-    const lines = state.finishedResults.map((r) => {
-      const character = characterSet.find((c) => c.id === r.characterId);
-      const name = character ? character.name : "?";
-      return r.universe + ": " + name + " (" + r.similarity + "%)";
-    });
-
-    return "나와 닮은 캐릭터 3인방!\n" + lines.join("\n");
-  }
-
   function shareResult() {
+    const character = characterSet.find((c) => c.id === state.finishedCharacterId);
     const shareTitle = activeTest.title;
-    const shareText = buildShareText();
+    const shareText = character
+      ? "나와 닮은 캐릭터는 " + character.name + "! (" + state.finishedSimilarity + "% 일치)"
+      : activeTest.title;
     const shareUrl = window.location.href;
 
     if (navigator.share) {
@@ -578,7 +642,6 @@
       return;
     }
 
-    // 아주 오래된 브라우저를 위한 최후 수단
     try {
       const textarea = document.createElement("textarea");
       textarea.value = url;
@@ -605,7 +668,7 @@
   }
 
   /* ----------------------------------------------------------------- */
-  /* 9. 새로고침 / 브라우저 뒤로가기 대응 (요구사항 14, 15)                */
+  /* 9. 새로고침 / 브라우저 뒤로가기 대응                                 */
   /* ----------------------------------------------------------------- */
   function pushHistoryState(screenName) {
     try {
@@ -615,35 +678,24 @@
     }
   }
 
-  // sessionStorage에는 캐릭터 id만 저장되므로, 복원 시 실제 캐릭터 객체로 다시 매핑한다.
-  function resolveFinishedResults() {
-    if (!state.finishedResults) return null;
-    const resolved = state.finishedResults.map((r) => {
-      const character = characterSet.find((c) => c.id === r.characterId);
-      if (!character) return null;
-      return { universe: r.universe, character, similarity: r.similarity };
-    });
-    return resolved.every(Boolean) ? resolved : null;
-  }
-
   window.addEventListener("popstate", (event) => {
     const target = event.state && event.state.appScreen;
 
     if (target === "quiz") {
       // 결과 화면에서 뒤로가기를 누른 경우 -> 마지막 문항으로 돌아가 답을 바꿀 수 있게 한다.
-      // (문항을 답하는 도중의 뒤로가기는 히스토리에 별도로 쌓지 않으므로 이 분기로 오지 않는다.)
-      state.finishedResults = null;
-      state.finishedVector = undefined;
+      state.finishedCharacterId = null;
+      state.finishedSimilarity = null;
+      state.finishedVector = null;
       saveState();
       showScreen("quiz");
       renderQuestion();
       return;
     }
 
-    if (target === "result" && state.finishedResults) {
-      const results = resolveFinishedResults();
-      if (results) {
-        renderResult(state.finishedVector, results);
+    if (target === "result" && state.finishedCharacterId) {
+      const character = characterSet.find((c) => c.id === state.finishedCharacterId);
+      if (character) {
+        renderResult(state.finishedVector, character, state.finishedSimilarity);
         showScreen("result");
         return;
       }
@@ -665,22 +717,28 @@
     el.shareBtn.addEventListener("click", shareResult);
     el.restartBtn.addEventListener("click", restartTest);
 
-    // 새로고침 시 진행 중이던 상태 복원 (요구사항 14)
+    // 새로고침 시 진행 중이던 상태 복원
     const saved = loadState();
     if (saved) {
       state = Object.assign(state, saved);
 
-      if (state.finishedResults) {
-        const results = resolveFinishedResults();
-        if (results) {
-          renderResult(state.finishedVector, results);
+      // 이번 회차에 뽑혔던 질문 순서를 그대로 복원 (매번 랜덤이라 저장 필수)
+      const restoredQuestions = resolveQuestionsFromIds(state.questionIds);
+      if (restoredQuestions) {
+        questions = restoredQuestions;
+      }
+
+      if (state.finishedCharacterId && questions.length) {
+        const character = characterSet.find((c) => c.id === state.finishedCharacterId);
+        if (character) {
+          renderResult(state.finishedVector, character, state.finishedSimilarity);
           showScreen("result");
           pushHistoryState("result");
           return;
         }
       }
 
-      if (state.answerIndices && state.answerIndices.length > 0) {
+      if (questions.length && state.answerIndices && state.answerIndices.length > 0) {
         showScreen("quiz");
         renderQuestion();
         pushHistoryState("quiz");

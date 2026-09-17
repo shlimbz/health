@@ -6,8 +6,7 @@
  * ⚠️ 참고: 아래 45개 캐릭터는 각 원작사(치이카와/산리오 계열, 디즈니, 픽사 등)가
  * 권리를 가진 이름입니다. 개인적으로 테스트해보거나 구조를 검증하는 용도로는
  * 문제가 없지만, 실제 서비스로 공개/배포한다면 이름과 이미지를 자체 제작
- * 캐릭터로 교체하는 것을 권장합니다. (image 경로는 전부 placeholder이며
- * 실제 이미지 파일은 포함되어 있지 않습니다.)
+ * 캐릭터로 교체하는 것을 권장합니다.
  *
  * - personality 값의 범위는 질문 데이터와 동일하게 -2 ~ +2 를 기준으로 하되,
  *   캐릭터 수가 많아진 만큼 0.5 단위의 세분화된 값을 사용해 서로 겹치지
@@ -45,7 +44,7 @@ const CHARACTER_SETS = {
       emoji: "🐹",
       image: "chiikawa.webp",
       family: "치이카와 세계관",
-      personality: { energy: -1, action: -1, emotion: 1.5, lifestyle: -1.5 },
+      personality: { energy: -1, sense: -1, emotion: 1.5, lifestyle: -1.5 },
       tagline: "겁은 많지만 오늘도 묵묵히 노력하는 타입",
       description:
         "잘 해낼 수 있을지 늘 걱정이 많지만, 그래도 매번 성실하게 최선을 다하는 타입이에요. 낯선 상황 앞에서는 잔뜩 긴장하지만, 곁에 있는 사람들 덕분에 조금씩 용기를 내요.",
@@ -58,7 +57,7 @@ const CHARACTER_SETS = {
       emoji: "🐱",
       image: "hachiware.webp",
       family: "치이카와 세계관",
-      personality: { energy: 1.5, action: 1, emotion: 1, lifestyle: 1 },
+      personality: { energy: 1.5, sense: 1, emotion: 1, lifestyle: 1 },
       tagline: "밝은 에너지로 친구를 챙기는 든든한 무드메이커",
       description:
         "똑똑하고 눈치가 빨라서 분위기를 잘 살피고, 주변 친구들을 자연스럽게 챙기는 타입이에요. 긍정적인 태도로 힘든 상황도 가볍게 풀어내는 힘이 있어요.",
@@ -71,7 +70,7 @@ const CHARACTER_SETS = {
       emoji: "🐰",
       image: "usagi.webp",
       family: "치이카와 세계관",
-      personality: { energy: 1, action: 2, emotion: 0, lifestyle: 2 },
+      personality: { energy: 1, sense: -1, emotion: 0, lifestyle: 2 },
       tagline: "일단 몸이 먼저 움직이는 자유로운 행동파",
       description:
         "생각보다 행동이 먼저 나가는 통통 튀는 타입이에요. 정해진 틀이나 눈치 보는 것과는 거리가 멀고, 하고 싶은 걸 즉흥적으로 밀어붙이는 에너지가 매력이에요.",
@@ -84,7 +83,7 @@ const CHARACTER_SETS = {
       emoji: "🐿️",
       image: "momonga.webp",
       family: "치이카와 세계관",
-      personality: { energy: 1.5, action: 1, emotion: 1, lifestyle: 1.5 },
+      personality: { energy: 1.5, sense: 1, emotion: 1, lifestyle: 1.5 },
       tagline: "존재감을 뽐내는 걸 즐기는 자기표현형",
       description:
         "관심받는 걸 즐기고, 자기만의 매력을 적극적으로 드러내는 타입이에요. 유쾌하고 자유분방해서 어디서든 눈에 띄는 존재가 돼요.",
@@ -97,7 +96,7 @@ const CHARACTER_SETS = {
       emoji: "🦦",
       image: "rakko.webp",
       family: "치이카와 세계관",
-      personality: { energy: 1, action: 1, emotion: -0.5, lifestyle: -1 },
+      personality: { energy: 1, sense: -1, emotion: -1, lifestyle: -1 },
       tagline: "든든하게 무리를 이끄는 신뢰형 리더",
       description:
         "차분하면서도 필요할 때는 앞장서서 사람들을 이끄는 타입이에요. 감정에 휘둘리기보다 안정적인 판단으로 주변에 신뢰를 줘요.",
@@ -110,7 +109,7 @@ const CHARACTER_SETS = {
       emoji: "🌰",
       image: "kurimanju.webp",
       family: "치이카와 세계관",
-      personality: { energy: -1.5, action: -1.5, emotion: 0, lifestyle: 0.5 },
+      personality: { energy: -1.5, sense: -1.5, emotion: 0, lifestyle: 0.5 },
       tagline: "서두르지 않고 내 속도로 사는 여유형",
       description:
         "굳이 애쓰지 않고 느긋하게 흘러가는 대로 사는 타입이에요. 혼자만의 편안한 리듬을 소중히 여기고, 여유로운 태도로 주변까지 편안하게 만들어요.",
@@ -123,7 +122,7 @@ const CHARACTER_SETS = {
       emoji: "🦁",
       image: "shisa.webp",
       family: "치이카와 세계관",
-      personality: { energy: -1, action: 1, emotion: -1, lifestyle: -1.5 },
+      personality: { energy: -1, sense: -1, emotion: -1, lifestyle: -1.5 },
       tagline: "묵묵히 자기 몫을 해내는 성실한 노력형",
       description:
         "티 내지 않고 꾸준히 자기 할 일을 해내는 타입이에요. 감정보다 책임감을 우선시하고, 정해진 루틴 안에서 안정적으로 실력을 쌓아가요.",
@@ -136,7 +135,7 @@ const CHARACTER_SETS = {
       emoji: "🦀",
       image: "kanichan.webp",
       family: "치이카와 세계관",
-      personality: { energy: -1.5, action: -1.5, emotion: 1.5, lifestyle: -1 },
+      personality: { energy: -1.5, sense: 1, emotion: 1.5, lifestyle: -1 },
       tagline: "다정하게 곁을 살피는 차분한 배려꾼",
       description:
         "나서서 주목받기보다 조용히 주변을 살피고 챙기는 타입이에요. 다른 사람의 감정 변화를 잘 알아차리고 부드럽게 다가가요.",
@@ -151,7 +150,7 @@ const CHARACTER_SETS = {
       emoji: "🐻",
       image: "winnie-pooh.webp",
       family: "디즈니 클래식",
-      personality: { energy: 0, action: -2, emotion: 1, lifestyle: 1 },
+      personality: { energy: -0.5, sense: -1, emotion: 1, lifestyle: 1.5 },
       tagline: "소소한 행복을 아는 느긋한 평화주의자",
       description:
         "서두르는 법이 없고, 작은 것에서도 행복을 찾아내는 타입이에요. 욕심 부리지 않고 지금 이 순간을 편안하게 즐기는 여유가 매력이에요.",
@@ -164,7 +163,7 @@ const CHARACTER_SETS = {
       emoji: "🐭",
       image: "mickey.webp",
       family: "디즈니 클래식",
-      personality: { energy: 2, action: 1, emotion: 1, lifestyle: 1 },
+      personality: { energy: 2, sense: 0, emotion: 1, lifestyle: 1 },
       tagline: "누구와도 잘 지내는 사교적인 긍정왕",
       description:
         "사람들과 함께 있을 때 가장 밝게 빛나는 타입이에요. 긍정적인 에너지로 주변 분위기를 이끌고, 활발하게 이것저것 시도해보는 걸 좋아해요.",
@@ -177,7 +176,7 @@ const CHARACTER_SETS = {
       emoji: "🦆",
       image: "donald.webp",
       family: "디즈니 클래식",
-      personality: { energy: 1, action: 2, emotion: 1, lifestyle: 1 },
+      personality: { energy: 1, sense: -1.5, emotion: 1, lifestyle: 1 },
       tagline: "속마음을 숨기지 못하는 다혈질 감정파",
       description:
         "느낀 걸 그대로 표현하는 솔직한 타입이에요. 욱하는 순간도 있지만 그만큼 감정에 진심이고, 뒤끝 없이 훌훌 털어버리는 편이에요.",
@@ -190,7 +189,7 @@ const CHARACTER_SETS = {
       emoji: "🐶",
       image: "goofy.webp",
       family: "디즈니 클래식",
-      personality: { energy: 1, action: 1.5, emotion: 1, lifestyle: 2 },
+      personality: { energy: 1, sense: 1, emotion: 1, lifestyle: 2 },
       tagline: "엉뚱하지만 미워할 수 없는 허당 낙천주의자",
       description:
         "실수투성이여도 늘 웃음을 잃지 않는 타입이에요. 계획대로 되지 않아도 크게 개의치 않고, 특유의 엉뚱함으로 상황을 즐겁게 만들어요.",
@@ -203,7 +202,7 @@ const CHARACTER_SETS = {
       emoji: "⛄",
       image: "olaf.webp",
       family: "디즈니 클래식",
-      personality: { energy: 1.5, action: 1, emotion: 1.5, lifestyle: 2 },
+      personality: { energy: 1.5, sense: 0.5, emotion: 1.5, lifestyle: 2 },
       tagline: "순수한 마음으로 세상을 즐기는 즉흥 낙천가",
       description:
         "작은 것에도 크게 기뻐하는 순수한 타입이에요. 계산 없이 마음 가는 대로 움직이고, 사람들과 함께하는 것 자체를 진심으로 즐거워해요.",
@@ -216,7 +215,7 @@ const CHARACTER_SETS = {
       emoji: "🦁",
       image: "simba.webp",
       family: "디즈니 클래식",
-      personality: { energy: 1, action: 2, emotion: 0, lifestyle: 1 },
+      personality: { energy: 1, sense: -1.5, emotion: 0, lifestyle: 1 },
       tagline: "책임감으로 성장하는 모험심 가득한 행동파",
       description:
         "일단 부딪혀보며 배우는 타입이에요. 처음엔 자유분방하지만, 책임져야 할 일 앞에서는 망설이지 않고 앞장서는 힘이 있어요.",
@@ -229,7 +228,7 @@ const CHARACTER_SETS = {
       emoji: "🧜‍♀️",
       image: "ariel.webp",
       family: "디즈니 클래식",
-      personality: { energy: 1, action: 1.5, emotion: 1, lifestyle: 2 },
+      personality: { energy: 1, sense: 1, emotion: 1, lifestyle: 2 },
       tagline: "새로운 세상이 궁금한 호기심 많은 모험가",
       description:
         "익숙한 것보다 낯선 것에 더 끌리는 타입이에요. 궁금한 게 생기면 직접 부딪혀서 확인하고, 자유롭게 자기 길을 찾아 나가요.",
@@ -242,7 +241,7 @@ const CHARACTER_SETS = {
       emoji: "🧞",
       image: "genie.webp",
       family: "디즈니 클래식",
-      personality: { energy: 2, action: 1.5, emotion: 1, lifestyle: 1.5 },
+      personality: { energy: 2, sense: 1, emotion: 1, lifestyle: 1.5 },
       tagline: "즉흥적인 유쾌함으로 분위기를 살리는 인싸",
       description:
         "어떤 자리든 유쾌하게 만드는 타입이에요. 순발력이 좋아서 상황에 맞춰 즉흥적으로 재치를 발휘하고, 사람들과 어울리는 걸 진심으로 즐겨요.",
@@ -255,7 +254,7 @@ const CHARACTER_SETS = {
       emoji: "🐯",
       image: "tigger.webp",
       family: "디즈니 클래식",
-      personality: { energy: 2, action: 2, emotion: 1, lifestyle: 1.5 },
+      personality: { energy: 2, sense: 0, emotion: 1, lifestyle: 1.5 },
       tagline: "가만히 있질 못하는 에너지 폭발형",
       description:
         "튀어 오르는 것처럼 에너지가 넘치는 타입이에요. 가만히 있는 것보다 몸을 움직이는 게 편하고, 어디서든 유쾌한 분위기를 만들어내요.",
@@ -268,7 +267,7 @@ const CHARACTER_SETS = {
       emoji: "👽",
       image: "stitch.webp",
       family: "디즈니 클래식",
-      personality: { energy: 1, action: 2, emotion: 1.5, lifestyle: 1.5 },
+      personality: { energy: 1, sense: 1, emotion: 1.5, lifestyle: 1.5 },
       tagline: "장난꾸러기 같지만 정이 많은 자유분방형",
       description:
         "처음엔 제멋대로처럼 보여도 마음속엔 깊은 애정이 있는 타입이에요. 예측하기 어려운 자유분방함 속에서도 소중한 사람에겐 진심을 다해요.",
@@ -283,7 +282,7 @@ const CHARACTER_SETS = {
       emoji: "🐠",
       image: "dory.webp",
       family: "픽사 친구들",
-      personality: { energy: 1.5, action: 1.5, emotion: 1, lifestyle: 2 },
+      personality: { energy: 1.5, sense: -0.5, emotion: 1, lifestyle: 1.5 },
       tagline: "일단 헤엄쳐보는 긍정적인 즉흥 모험가",
       description:
         "고민할 시간에 일단 움직여보는 타입이에요. 상황이 어려워도 금세 툭툭 털고 다시 밝은 태도로 나아가는 회복력이 있어요.",
@@ -296,7 +295,7 @@ const CHARACTER_SETS = {
       emoji: "🧸",
       image: "sulley.webp",
       family: "픽사 친구들",
-      personality: { energy: 1.5, action: -0.5, emotion: 1.5, lifestyle: -1.5 },
+      personality: { energy: 1.5, sense: -1, emotion: 1.5, lifestyle: -1.5 },
       tagline: "덩치는 크지만 마음은 여린 든든한 보호자",
       description:
         "겉모습과 달리 다정하고 세심한 타입이에요. 곁에 있는 존재를 살뜰히 챙기고, 안정적인 태도로 신뢰를 주는 든든함이 있어요.",
@@ -309,7 +308,7 @@ const CHARACTER_SETS = {
       emoji: "👁️",
       image: "mike.webp",
       family: "픽사 친구들",
-      personality: { energy: 1, action: 1.5, emotion: -1, lifestyle: -1 },
+      personality: { energy: 1, sense: -1, emotion: -1, lifestyle: -1 },
       tagline: "목표를 향해 달리는 자신감 넘치는 노력파",
       description:
         "원하는 목표가 생기면 전략적으로 밀어붙이는 타입이에요. 감정보다 실력과 결과로 인정받고 싶어 하고, 경쟁 상황에서 오히려 힘이 나요.",
@@ -322,7 +321,7 @@ const CHARACTER_SETS = {
       emoji: "🐭",
       image: "remy.webp",
       family: "픽사 친구들",
-      personality: { energy: -1.5, action: 1, emotion: 0.5, lifestyle: 1.5 },
+      personality: { energy: -1.5, sense: 1, emotion: 0.5, lifestyle: 1.5 },
       tagline: "자기만의 감각을 믿는 창의적인 탐구가",
       description:
         "남들과 다른 자기만의 감각과 취향을 소중히 여기는 타입이에요. 호기심이 생기면 직접 시도해보며 배우고, 자기 방식대로 밀고 나가요.",
@@ -337,7 +336,7 @@ const CHARACTER_SETS = {
       emoji: "😄",
       image: "joy.webp",
       family: "인사이드아웃",
-      personality: { energy: 1.5, action: 1.5, emotion: 2, lifestyle: 1.5 },
+      personality: { energy: 1, sense: 1, emotion: 2, lifestyle: 1.5 },
       tagline: "언제나 밝은 면을 먼저 보는 긍정 에너자이저",
       description:
         "감정을 숨기지 않고 있는 그대로 밝게 표현하는 타입이에요. 어떤 상황에서도 좋은 점을 먼저 찾아내고, 그 에너지로 주변까지 밝게 만들어요.",
@@ -350,7 +349,7 @@ const CHARACTER_SETS = {
       emoji: "😡",
       image: "anger.webp",
       family: "인사이드아웃",
-      personality: { energy: 0, action: 2, emotion: -1, lifestyle: 0 },
+      personality: { energy: 1, sense: -1.5, emotion: -1, lifestyle: 1 },
       tagline: "참지 않고 바로 터뜨리는 직설적인 반응형",
       description:
         "느낀 걸 곧바로 표현하는 즉각적인 타입이에요. 돌려 말하는 것보다 직설적으로 말하는 편이고, 화가 나면 참지 않고 바로 티가 나요.",
@@ -363,7 +362,7 @@ const CHARACTER_SETS = {
       emoji: "😨",
       image: "fear.webp",
       family: "인사이드아웃",
-      personality: { energy: -1.5, action: -2, emotion: 1, lifestyle: -1.5 },
+      personality: { energy: -1.5, sense: 1, emotion: 1, lifestyle: -1.5 },
       tagline: "만약을 대비하는 신중하고 걱정 많은 타입",
       description:
         "혹시 모를 상황을 미리 걱정하고 대비하는 타입이에요. 무리한 도전보다 안전한 선택을 우선하고, 신중하게 확인한 뒤에야 움직여요.",
@@ -376,7 +375,7 @@ const CHARACTER_SETS = {
       emoji: "😢",
       image: "sadness.webp",
       family: "인사이드아웃",
-      personality: { energy: -1.5, action: -1.5, emotion: 2, lifestyle: -1 },
+      personality: { energy: -1.5, sense: 0, emotion: 2, lifestyle: -1 },
       tagline: "느리지만 깊이 공감하는 조용한 위로자",
       description:
         "서두르지 않고 천천히, 마음 깊이 느끼는 타입이에요. 슬픔이나 힘든 감정을 피하지 않고 있는 그대로 받아들이는 편이라, 오히려 누군가의 아픔을 가장 잘 이해해주는 존재가 돼요.",
@@ -389,7 +388,7 @@ const CHARACTER_SETS = {
       emoji: "🤢",
       image: "disgust.webp",
       family: "인사이드아웃",
-      personality: { energy: -1, action: 0, emotion: -2, lifestyle: -1 },
+      personality: { energy: -1, sense: -1, emotion: -2, lifestyle: -1 },
       tagline: "기준이 확실한 현실적인 깐깐러",
       description:
         "마음에 안 드는 건 솔직하게 티가 나는 타입이에요. 감정보다 자기 기준과 취향이 확실하고, 대충 넘어가는 걸 싫어해요.",
@@ -404,7 +403,7 @@ const CHARACTER_SETS = {
       emoji: "🐙",
       image: "ursula.webp",
       family: "디즈니 빌런",
-      personality: { energy: 1.5, action: 1, emotion: -0.5, lifestyle: 1 },
+      personality: { energy: 1.5, sense: 1, emotion: -0.5, lifestyle: 1 },
       tagline: "말로 상황을 뒤집는 능글맞은 협상가",
       description:
         "능청스러운 말솜씨로 원하는 걸 얻어내는 타입이에요. 사교적이고 자기주장이 뚜렷해서, 협상 자리에서도 주도권을 잡는 편이에요.",
@@ -417,7 +416,7 @@ const CHARACTER_SETS = {
       emoji: "🐉",
       image: "maleficent.webp",
       family: "디즈니 빌런",
-      personality: { energy: -1.5, action: -0.5, emotion: -2, lifestyle: -1 },
+      personality: { energy: -1.5, sense: -0.5, emotion: -2, lifestyle: -1 },
       tagline: "흔들리지 않는 자기 기준의 소유자",
       description:
         "감정에 쉽게 휘둘리지 않는 냉철한 타입이에요. 혼자만의 확고한 기준을 갖고 있고, 필요 이상으로 사람들과 어울리지 않아요.",
@@ -430,7 +429,7 @@ const CHARACTER_SETS = {
       emoji: "🦁",
       image: "scar.webp",
       family: "디즈니 빌런",
-      personality: { energy: -1, action: -1, emotion: -2, lifestyle: -1.5 },
+      personality: { energy: 0.5, sense: -1, emotion: -2, lifestyle: -1.5 },
       tagline: "치밀하게 계산하는 전략적인 야심가",
       description:
         "감정보다 계산이 앞서는 전략가 타입이에요. 목표를 이루기 위해 차근차근 계획을 세우고, 상황을 유리하게 이끄는 데 능해요.",
@@ -443,7 +442,7 @@ const CHARACTER_SETS = {
       emoji: "🍎",
       image: "evil-queen.webp",
       family: "디즈니 빌런",
-      personality: { energy: -1, action: -0.5, emotion: -2, lifestyle: -1 },
+      personality: { energy: -1, sense: -1.5, emotion: -2, lifestyle: -1 },
       tagline: "완벽을 추구하는 자존심 강한 완벽주의자",
       description:
         "자기 관리에 철저하고 지는 걸 싫어하는 타입이에요. 감정을 잘 드러내지 않으면서도 내면에는 강한 승부욕과 자존심을 갖고 있어요.",
@@ -456,7 +455,7 @@ const CHARACTER_SETS = {
       emoji: "🔥",
       image: "hades.webp",
       family: "디즈니 빌런",
-      personality: { energy: 1.5, action: 1.5, emotion: -0.5, lifestyle: 1.5 },
+      personality: { energy: 1.5, sense: 1, emotion: -0.5, lifestyle: 1.5 },
       tagline: "말빨로 분위기를 휘어잡는 즉흥적인 능구렁이",
       description:
         "재치 있는 말솜씨로 순식간에 분위기를 만드는 타입이에요. 귀찮은 건 딱 질색이라 즉흥적으로 처리하는 편이지만, 그만큼 유쾌한 매력이 있어요.",
@@ -469,7 +468,7 @@ const CHARACTER_SETS = {
       emoji: "🐚",
       image: "cruella.webp",
       family: "디즈니 빌런",
-      personality: { energy: 1, action: 1.5, emotion: -0.5, lifestyle: 1.5 },
+      personality: { energy: 1, sense: 1, emotion: -0.5, lifestyle: 1.5 },
       tagline: "취향이 확실한 개성 넘치는 자기표현러",
       description:
         "남들 시선보다 자기만의 취향과 스타일을 우선하는 타입이에요. 개성이 뚜렷하고 하고 싶은 말은 확실하게 하는 당당함이 있어요.",
@@ -482,7 +481,7 @@ const CHARACTER_SETS = {
       emoji: "🦜",
       image: "jafar.webp",
       family: "디즈니 빌런",
-      personality: { energy: -1, action: -1.5, emotion: -2, lifestyle: -1.5 },
+      personality: { energy: -0.5, sense: -2, emotion: -2, lifestyle: -1 },
       tagline: "빈틈없이 계획하는 냉철한 통제형",
       description:
         "감정에 흔들리지 않고 치밀하게 계획을 세우는 타입이에요. 목표를 이루기 위해 상황을 통제하려 하고, 신중하고 계산적으로 움직여요.",
@@ -495,7 +494,7 @@ const CHARACTER_SETS = {
       emoji: "🪝",
       image: "captain-hook.webp",
       family: "디즈니 빌런",
-      personality: { energy: -1, action: 1, emotion: 1.5, lifestyle: -1.5 },
+      personality: { energy: -1, sense: 0, emotion: 1.5, lifestyle: -1.5 },
       tagline: "체면을 중시하는 예민하고 감정적인 타입",
       description:
         "자존심과 체면을 무엇보다 중요하게 여기는 타입이에요. 예민한 편이라 사소한 일에도 감정이 크게 흔들리고, 티가 나게 반응해요.",
@@ -510,7 +509,7 @@ const CHARACTER_SETS = {
       emoji: "🤠",
       image: "woody.webp",
       family: "토이 스토리",
-      personality: { energy: 1.5, action: 0, emotion: 1.5, lifestyle: -1.5 },
+      personality: { energy: 1.5, sense: -1, emotion: 1.5, lifestyle: -1.5 },
       tagline: "친구를 먼저 챙기는 책임감 있는 리더",
       description:
         "무리 안에서 자연스럽게 리더 역할을 맡는 타입이에요. 자기 이익보다 친구들의 안전과 화합을 먼저 생각하고, 끝까지 책임지려 해요.",
@@ -523,7 +522,7 @@ const CHARACTER_SETS = {
       emoji: "🚀",
       image: "buzz.webp",
       family: "토이 스토리",
-      personality: { energy: 1.5, action: 2, emotion: 0, lifestyle: 1 },
+      personality: { energy: 1.5, sense: -1, emotion: -0.5, lifestyle: 1 },
       tagline: "망설임 없이 도전하는 자신감 넘치는 행동파",
       description:
         "일단 부딪혀보며 자신을 증명하는 타입이에요. 새로운 도전 앞에서 망설이지 않고, 확고한 자신감으로 상황을 밀고 나가요.",
@@ -536,7 +535,7 @@ const CHARACTER_SETS = {
       emoji: "🐷",
       image: "hamm.webp",
       family: "토이 스토리",
-      personality: { energy: -1, action: -1.5, emotion: -1.5, lifestyle: -1.5 },
+      personality: { energy: -1, sense: -1, emotion: -1.5, lifestyle: -1.5 },
       tagline: "한 발 물러서서 지켜보는 현실적인 관찰자",
       description:
         "상황에 바로 뛰어들기보다 한 발 물러서서 지켜보는 타입이에요. 냉소적인 유머 속에 현실적인 판단력이 숨어 있어요.",
@@ -549,7 +548,7 @@ const CHARACTER_SETS = {
       emoji: "🦖",
       image: "rex.webp",
       family: "토이 스토리",
-      personality: { energy: -1, action: -1.5, emotion: 1, lifestyle: -1.5 },
+      personality: { energy: -1, sense: 1, emotion: 1, lifestyle: -1.5 },
       tagline: "걱정이 많지만 그만큼 애쓰는 노력형",
       description:
         "잘 해낼 수 있을지 늘 불안해하지만, 그럼에도 최선을 다하는 타입이에요. 조심스러운 성격 때문에 매사에 신중하게 접근해요.",
@@ -562,7 +561,7 @@ const CHARACTER_SETS = {
       emoji: "🐴",
       image: "bullseye.webp",
       family: "토이 스토리",
-      personality: { energy: 1, action: 1.5, emotion: 1.5, lifestyle: 0.5 },
+      personality: { energy: 1, sense: -1, emotion: 1.5, lifestyle: 0.5 },
       tagline: "충성심 가득한 순수하고 활동적인 타입",
       description:
         "한번 마음을 준 상대에게는 끝까지 충실한 타입이에요. 순수하고 활동적이라 망설임 없이 몸을 움직이고, 애정 표현도 솔직해요.",
@@ -575,7 +574,7 @@ const CHARACTER_SETS = {
       emoji: "🥔",
       image: "mr-potato-head.webp",
       family: "토이 스토리",
-      personality: { energy: 0, action: 1, emotion: -1.5, lifestyle: -0.5 },
+      personality: { energy: 0, sense: -2, emotion: -1.5, lifestyle: -0.5 },
       tagline: "돌려 말하지 않는 현실적인 츤데레",
       description:
         "생각한 걸 그대로 말해버리는 직설적인 타입이에요. 무뚝뚝해 보여도 특유의 유머로 분위기를 만들고, 현실적인 조언을 아끼지 않아요.",
@@ -588,12 +587,12 @@ const CHARACTER_SETS = {
       emoji: "👛",
       image: "mrs-potato-head.webp",
       family: "토이 스토리",
-      personality: { energy: 1.5, action: 1, emotion: 0, lifestyle: -0.5 },
-      tagline: "할 말은 하는 적극적인 분위기 메이커",
+      personality: { energy: 1.5, sense: 0, emotion: 0, lifestyle: 1.5 },
+      tagline: "장난기 넘치는 적극적인 분위기 메이커",
       description:
-        "필요할 땐 확실하게 자기 의견을 밝히는 타입이에요. 사람들과 어울리는 걸 좋아하고, 적극적인 태도로 상황을 주도해요.",
-      traits: ["자기주장이 확실해요", "사교적이고 적극적이에요", "필요할 때 나서서 챙겨요"],
-      reasons: ["망설이지 않고 의견을 밝혔어요", "사람들과 함께하는 자리를 즐겼어요", "적극적으로 상황을 이끌었어요"]
+        "필요할 땐 확실하게 자기 의견을 밝히는 타입이에요. 격식에 얽매이기보다 즉흥적으로 유쾌하게 반응하는 편이라, 사람들과 어울리는 자리를 늘 활기차게 만들어요.",
+      traits: ["자기주장이 확실해요", "사교적이고 적극적이에요", "즉흥적이고 유쾌해요"],
+      reasons: ["망설이지 않고 의견을 밝혔어요", "사람들과 함께하는 자리를 즐겼어요", "격식보다 그때그때의 분위기를 따랐어요"]
     },
     {
       id: "bo-peep",
@@ -601,7 +600,7 @@ const CHARACTER_SETS = {
       emoji: "🐑",
       image: "bo-peep.webp",
       family: "토이 스토리",
-      personality: { energy: -1.5, action: 0.5, emotion: -0.5, lifestyle: 1.5 },
+      personality: { energy: -1.5, sense: 1, emotion: -0.5, lifestyle: 1.5 },
       tagline: "자기 길을 스스로 정하는 독립적인 타입",
       description:
         "남에게 기대기보다 스스로 판단하고 움직이는 타입이에요. 차분하지만 필요할 땐 과감하게 자기 길을 선택하는 독립심이 있어요.",
@@ -614,7 +613,7 @@ const CHARACTER_SETS = {
       emoji: "🐶",
       image: "slinky.webp",
       family: "토이 스토리",
-      personality: { energy: -1, action: -1, emotion: 1.5, lifestyle: -1.5 },
+      personality: { energy: -1, sense: -1, emotion: 1.5, lifestyle: -1.5 },
       tagline: "묵묵히 곁을 지키는 든든한 의리파",
       description:
         "나서지 않아도 늘 곁에서 조용히 지지해주는 타입이에요. 의리와 배려심이 깊어서, 힘든 순간에도 변함없이 함께해줘요.",
@@ -627,7 +626,7 @@ const CHARACTER_SETS = {
       emoji: "🤠",
       image: "jessie.webp",
       family: "토이 스토리",
-      personality: { energy: 1.5, action: 2, emotion: 1, lifestyle: 1.5 },
+      personality: { energy: 1.5, sense: 0, emotion: 1, lifestyle: 1.5 },
       tagline: "씩씩하게 뛰어드는 활기찬 모험가",
       description:
         "망설임보다 행동이 앞서는 씩씩한 타입이에요. 에너지 넘치는 태도로 어떤 상황에도 용감하게 뛰어들고, 감정 표현도 시원시원해요.",
@@ -643,7 +642,7 @@ const CHARACTER_SETS = {
  */
 const MATCHING_WEIGHTS = {
   energy: 1.0,
-  action: 1.0,
+  sense: 1.0,
   emotion: 1.0,
   lifestyle: 1.0
 };
@@ -660,9 +659,11 @@ const MATCH_POOL_TOLERANCE = 0.9;
 /**
  * 세계관(family)을 더 큰 "유니버스" 3개로 묶는 매핑.
  *
- * 결과 화면에서 "치이카와 세계관에서 1명 / 디즈니 세계관에서 1명 /
- * 픽사 세계관에서 1명" 이렇게 총 3명을 보여주기 위한 분류다.
- * family를 새로 추가할 때는 여기에도 어느 유니버스에 속하는지 꼭 추가해줘야 한다.
+ * ⚠️ 현재 app.js는 이 매핑을 사용하지 않는다 (한때 "치이카와 세계관에서 1명 /
+ * 디즈니 세계관에서 1명 / 픽사 세계관에서 1명" 총 3명을 보여주는 결과 화면을
+ * 시도했다가, 지금은 전체 45개 중 가장 잘 맞는 1명만 보여주는 방식으로
+ * 되돌렸다). 나중에 "세계관별로 뽑기" 같은 기능을 다시 붙이고 싶을 때
+ * 바로 쓸 수 있도록 그대로 남겨둔다.
  */
 const UNIVERSE_BY_FAMILY = {
   "치이카와 세계관": "치이카와 세계관",
